@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+}
+
+/* NEON DEBUG MODE */
+body {
+  @apply bg-white text-black;
+}
+
+.dark body {
+  @apply bg-black text-green-400;
+}
+
+* {
+  outline: 1px dashed lime;
+}
+
+.dark input,
+.dark textarea {
+  @apply bg-gray-800 text-green-200 placeholder-green-400 border-green-500;
+}
+
+.dark button {
+  @apply bg-purple-700 text-white;
+}
+
+.dark h1, .dark h2, .dark h3, .dark label {
+  @apply text-pink-400;
+}
