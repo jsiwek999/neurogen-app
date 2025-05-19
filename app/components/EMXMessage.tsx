@@ -18,7 +18,9 @@ const tagStyles: Record<string, string> = {
   disrupt: 'text-red-600 font-extrabold uppercase animate-wiggle text-sm tracking-widest',
 };
 
-const tagIcons: Record<string, JSX.Element> = {
+import type { ReactElement } from 'react';
+
+const tagIcons: Record<string, ReactElement> = {
   shift: <Sparkles className="inline w-5 h-5 mr-2 text-purple-400" />,
   breath: <Wind className="inline w-5 h-5 mr-2 text-green-400" />,
   journal: <BookOpen className="inline w-5 h-5 mr-2 text-blue-400" />,
