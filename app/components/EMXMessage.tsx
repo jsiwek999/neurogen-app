@@ -1,3 +1,6 @@
+/// <reference types="react" />
+
+
 // import { parseEMXTags } from '../../utils/parseEMXTags';
 import {
   Sparkles,
