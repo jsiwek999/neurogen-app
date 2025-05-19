@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"@tailwindcss/typography": "latest",
-		"@types/react": "^19.1.2",
+		"@types/react": "^19.1.4",
 		"autoprefixer": "^10.4.21",
 		"postcss": "8.5.3",
 		"postcss-import": "^16.1.0",

@@ -5,17 +5,25 @@
     "module": "ESNext",
     "jsx": "preserve",
     "strict": true,
-
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["app/components/*"],
-      "@/api/*":        ["app/api/*"],
-      "@/lib/*":        ["lib/*"]               // ← fixed
+      "@/components/*": [
+        "app/components/*"
+      ],
+      "@/api/*": [
+        "app/api/*"
+      ],
+      "@/lib/*": [
+        "lib/*"
+      ] // ← fixed
     },
-
     /* the rest of your existing options … */
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "noEmit": true,
@@ -24,7 +32,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "plugins": [{ "name": "next" }]
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "next-env.d.ts",
@@ -32,5 +44,7 @@
     "**/*.ts",
     "**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
