@@ -29,7 +29,7 @@ const tagIcons: Record<string, ReactElement> = {
 };
 
  export default function EMXMessage({ message }: { message: string }) {
-  const parsed = parseEMXTags(message);
+ // const parsed = parseEMXTags(message);
 
   // If nothing parsed, show the raw message
   if (!parsed || parsed.length === 0) {
