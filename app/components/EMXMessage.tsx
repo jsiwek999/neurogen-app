@@ -1,4 +1,4 @@
-import { parseEMXTags } from '../../utils/parseEMXTags';
+// import { parseEMXTags } from '../../utils/parseEMXTags';
 import {
   Sparkles,
   Wind,
@@ -23,7 +23,7 @@ const tagIcons: Record<string, JSX.Element> = {
   disrupt: <Zap className="inline w-5 h-5 mr-2 text-red-400 animate-wiggle" />,
 };
 
-export default function EMXMessage({ message }: { message: string }) {
+ export default function EMXMessage({ message }: { message: string }) {
   const parsed = parseEMXTags(message);
 
   // If nothing parsed, show the raw message
