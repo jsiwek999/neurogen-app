@@ -86,9 +86,7 @@ export default function PromptLab({ onClose }: { onClose: () => void }) {
           rows={5}
           className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-sm"
         />
-        <button onClick={resetPrompt} className="text-xs text-blue-500 hover:underline">
-          Reset to Default
-        </button>
+        <button onClick={resetPrompt} className="text-xs text-blue-500 hover:underline">Reset to Default</button>
 
         <label className="block text-sm font-medium mt-4 text-gray-700 dark:text-gray-300">Your Prompt</label>
         <input
