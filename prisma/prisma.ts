@@ -1,5 +1,8 @@
 // lib/prisma.ts
-import { PrismaClient } from "@prisma/client";
+
+import PrismaPkg from '@prisma/client';
+const { PrismaClient } = PrismaPkg;
+
 
 // Prevent multiple instances in dev
 declare global {
