@@ -69,9 +69,6 @@ importers:
       postcss-import:
         specifier: ^16.1.0
         version: 16.1.0(postcss@8.5.3)
-      prisma:
-        specifier: ^6.8.2
-        version: 6.8.2(typescript@5.8.3)
       tailwindcss:
         specifier: 3.4.3
         version: 3.4.3
@@ -1628,10 +1625,13 @@ snapshots:
   '@prisma/config@6.8.2':
     dependencies:
       jiti: 2.4.2
+    optional: true
 
-  '@prisma/debug@6.8.2': {}
+  '@prisma/debug@6.8.2':
+    optional: true
 
-  '@prisma/engines-version@6.8.0-43.2060c79ba17c6bb9f5823312b6f6b7f4a845738e': {}
+  '@prisma/engines-version@6.8.0-43.2060c79ba17c6bb9f5823312b6f6b7f4a845738e':
+    optional: true
 
   '@prisma/engines@6.8.2':
     dependencies:
@@ -1639,16 +1639,19 @@ snapshots:
       '@prisma/engines-version': 6.8.0-43.2060c79ba17c6bb9f5823312b6f6b7f4a845738e
       '@prisma/fetch-engine': 6.8.2
       '@prisma/get-platform': 6.8.2
+    optional: true
 
   '@prisma/fetch-engine@6.8.2':
     dependencies:
       '@prisma/debug': 6.8.2
       '@prisma/engines-version': 6.8.0-43.2060c79ba17c6bb9f5823312b6f6b7f4a845738e
       '@prisma/get-platform': 6.8.2
+    optional: true
 
   '@prisma/get-platform@6.8.2':
     dependencies:
       '@prisma/debug': 6.8.2
+    optional: true
 
   '@stitches/core@1.2.8': {}
 
@@ -2158,7 +2161,8 @@ snapshots:
 
   jiti@1.21.7: {}
 
-  jiti@2.4.2: {}
+  jiti@2.4.2:
+    optional: true
 
   jose@4.15.9: {}
 
@@ -2633,6 +2637,7 @@ snapshots:
       '@prisma/engines': 6.8.2
     optionalDependencies:
       typescript: 5.8.3
+    optional: true
 
   prop-types@15.8.1:
     dependencies:
