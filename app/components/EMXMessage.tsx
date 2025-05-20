@@ -1,7 +1,7 @@
 /// <reference types="react" />
 
 
-// import { parseEMXTags } from '../../utils/parseEMXTags';
+import { parseEMXTags } from '../../utils/parseEMXTags';
 import {
   Sparkles,
   Wind,
@@ -30,7 +30,7 @@ const tagIcons: Record<string, ReactElement> = {
 
  export default function EMXMessage({ message }: { message: string }) {
  // const parsed = parseEMXTags(message);
-const parsed = parseEmx(message);
+const parsed = parseEMXTags(message);
 
   // If nothing parsed, show the raw message
   if (!parsed || parsed.length === 0) {
