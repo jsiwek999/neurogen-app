@@ -1,7 +1,8 @@
 // page.tsx
+'Use client';
+
 export const dynamic = 'force-dynamic'; // 👈 prevents static prerender
 
-"use client";
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr"; // adjust if you're using @supabase/auth-helpers-nextjs
