@@ -29,7 +29,7 @@ export default function PromptLab({ onClose }: { onClose: () => void }) {
     setLoading(true);
     setResponse('');
 
-    const finalSystemPrompt = `${archetypes[selectedArchetype]}\n\n${systemPrompt}`;
+    const finalSystemPrompt = ${archetypes[selectedArchetype]}\n\n${systemPrompt};
 
     try {
       const res = await fetch('/api/emx-lab', {
