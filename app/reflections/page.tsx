@@ -1,3 +1,6 @@
+// page.tsx
+export const dynamic = 'force-dynamic'; // 👈 prevents static prerender
+
 "use client";
 
 import { useState, useEffect } from "react";
