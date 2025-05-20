@@ -1,14 +1,18 @@
-import PrismaPkg from '@prisma/client';
-const { PrismaClient } = PrismaPkg;
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
 
-const globalForPrisma = global as unknown as { prisma?: PrismaClient };
-
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({ log: ["query"] });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+// Augment the NodeJS global to hold our PrismaClient
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined
 }
 
-export default prisma;
+// Reuse existing client if it’s already on `global`
+// (prevents exhausting your database connections in dev with hot reloads)
+const prisma = global.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma
+}
+
+export default prisma
