@@ -1,19 +1,16 @@
-// lib/prisma.ts
+// prisma/prisma.ts
+import { PrismaClient } from '@prisma/client'
+import type { PrismaClient as PrismaClientType } from '@prisma/client'
 
-import PrismaPkg from '@prisma/client';
-const { PrismaClient } = PrismaPkg;
-
-
-// Prevent multiple instances in dev
 declare global {
   // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
+  var prisma: PrismaClientType | undefined
 }
 
-const prisma = global.prisma ?? new PrismaClient();
+const client: PrismaClientType = global.prisma ?? new PrismaClient()
 
-if (process.env.NODE_ENV === "development") {
-  global.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = client
 }
 
-export default prisma;
+export default client
