@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr"; // adjust if you're using @supabase/auth-helpers-nextjs
 
-const supabase = createBrowserClient();
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 
 export default function ReflectionsPage() {
   const [input, setInput] = useState("");
