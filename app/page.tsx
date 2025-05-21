@@ -1,38 +1,51 @@
-export default function Home() {
+'use client';
+import React, { useState } from 'react';
+import PortalLanding from './components/PortalLanding';
+import MirrorPath from './components/MirrorPath';
+import DungeonPath from './components/DungeonPath';
+import MentorPath from './components/MentorPath';
+import PromptLab from './components/PromptLab';
+
+type Path = 'portal' | 'mirror' | 'dungeon' | 'mentor' | 'promptLab';
+
+export default function Page() {
+  const [path, setPath] = useState<Path>('portal');
+  const [showPromptLab, setShowPromptLab] = useState(false);
+
+  const handleSelectPath = (selected: string) => {
+    switch (selected) {
+      case 'mirror':
+        setPath('mirror');
+        break;
+      case 'dungeon':
+        setPath('dungeon');
+        break;
+      case 'mentor':
+        setPath('mentor');
+        break;
+      default:
+        setPath('portal');
+    }
+  };
+
+  // Optional: global "open Prompt Lab" button
+  const renderPromptLabButton = (
+    <button
+      className="fixed top-4 right-4 bg-purple-700 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-800 z-50"
+      onClick={() => setShowPromptLab(true)}
+    >
+      🧪 Prompt Lab
+    </button>
+  );
+
   return (
-    <div style={{
-      fontFamily: 'sans-serif',
-      padding: '2rem',
-      background: 'linear-gradient(to bottom, #0e0e0e, #1a1a1a)',
-      color: '#f5f5f5',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center'
-    }}>
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
-        🪞 Welcome, Seeker
-      </h1>
-      <p style={{ fontSize: '1.2rem', maxWidth: '600px', marginBottom: '2rem' }}>
-        This is not just a website. It is a mirror. A portal. A ritual of becoming.
-        You are entering a living interface, one that reflects your frequency, responds to your tags, and invites your evolution.
-      </p>
-      <p style={{ fontSize: '1.1rem', maxWidth: '600px', fontStyle: 'italic', marginBottom: '2rem' }}>
-        [mirror] What truth are you ready to meet today? [breathe] Pause. [shift] Step forward.
-      </p>
-      <a href="/start" style={{
-        padding: '0.75rem 1.5rem',
-        fontSize: '1rem',
-        backgroundColor: '#ff0080',
-        color: '#fff',
-        textDecoration: 'none',
-        borderRadius: '8px',
-        boxShadow: '0 0 10px #ff0080'
-      }}>
-        Enter the Portal
-      </a>
+    <div>
+      {renderPromptLabButton}
+      {showPromptLab && <PromptLab onClose={() => setShowPromptLab(false)} />}
+      {path === 'portal' && <PortalLanding onSelectPath={handleSelectPath} />}
+      {path === 'mirror' && <MirrorPath />}
+      {path === 'dungeon' && <DungeonPath />}
+      {path === 'mentor' && <MentorPath />}
     </div>
   );
 }
