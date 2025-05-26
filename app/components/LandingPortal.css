@@ -1,0 +1,134 @@
+body {
+  background: linear-gradient(135deg, #13132c 0%, #3c1561 100%);
+  color: #fff;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.container {
+  width: 100%;
+  max-width: 430px;
+  margin: 40px auto;
+  padding: 24px 16px 40px 16px;
+  background: rgba(20,16,40,0.75);
+  border-radius: 20px;
+  box-shadow: 0 4px 32px 0 #26003855;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.portal {
+  margin: 32px 0 16px 0;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, #a585f7 40%, #29174c 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 60px 18px #8856ec44, 0 0 0 10px #a585f722;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: portalPulse 3s infinite alternate;
+}
+@keyframes portalPulse {
+  from { box-shadow: 0 0 60px 18px #8856ec44, 0 0 0 10px #a585f722; }
+  to   { box-shadow: 0 0 90px 24px #ae7aff99, 0 0 0 18px #a585f733; }
+}
+.reflection {
+  width: 85px; height: 85px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 60% 30%, #fff2 60%, transparent 100%);
+  opacity: 0.25;
+  box-shadow: 0 0 16px 5px #fff6;
+}
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+.subhead {
+  text-align: center;
+  font-size: 1.13rem;
+  margin-bottom: 24px;
+  color: #d7cfff;
+  font-weight: 300;
+}
+.cards {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.card {
+  background: rgba(35,20,80,0.73);
+  border-radius: 14px;
+  padding: 12px 12px 10px 12px;
+  min-width: 80px;
+  text-align: center;
+  box-shadow: 0 2px 8px #56307333;
+}
+.card-icon {
+  font-size: 1.55rem;
+  margin-bottom: 4px;
+  color: #b69ff7;
+}
+.ritual {
+  width: 100%;
+  margin-bottom: 20px;
+}
+.ritual label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 1rem;
+  color: #e2d6f7;
+}
+.ritual input[type="text"] {
+  width: 100%;
+  padding: 9px;
+  border-radius: 8px;
+  border: none;
+  background: #1e1432;
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+.ritual .oath-label {
+  font-size: 0.95rem;
+  margin-left: 7px;
+  vertical-align: middle;
+  color: #c9afe9;
+  font-weight: 400;
+}
+.enter-btn {
+  background: linear-gradient(90deg, #a07af7 0%, #3e277b 90%);
+  border: none;
+  color: #fff;
+  font-size: 1.13rem;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 13px 36px;
+  box-shadow: 0 0 16px #a585f7aa, 0 1px 6px #0009;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s;
+  margin-top: 14px;
+  letter-spacing: 0.03em;
+}
+.enter-btn:hover, .enter-btn:focus {
+  background: linear-gradient(90deg, #c8abff 0%, #5421a7 100%);
+  box-shadow: 0 0 36px #ba9cfb99, 0 2px 12px #4a2756cc;
+}
+.enter-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 540px) {
+  .container { max-width: 99vw; padding: 12px 4vw 24px 4vw; }
+  .portal { width: 120px; height: 120px; }
+  .cards { flex-direction: column; gap: 10px; }
+}
