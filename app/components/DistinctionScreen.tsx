@@ -4,7 +4,7 @@ import React from "react";
 
 type Props = {
   onContinue: () => void;
-  onBack: () => void;
+  onBack?: () => void;
 };
 
 const DistinctionScreen: React.FC<Props> = ({ onContinue, onBack }) => (
@@ -14,9 +14,11 @@ const DistinctionScreen: React.FC<Props> = ({ onContinue, onBack }) => (
       Explore the key distinctions that set NeuroGen apart from other platforms.
     </p>
     <div className="flex gap-4">
-      <button className="px-4 py-2 bg-gray-400 text-white rounded-xl" onClick={onBack}>
-        Back
-      </button>
+      {onBack && (
+        <button className="px-4 py-2 bg-gray-400 text-white rounded-xl" onClick={onBack}>
+          Back
+        </button>
+      )}
       <button className="px-4 py-2 bg-blue-600 text-white rounded-xl" onClick={onContinue}>
         Next
       </button>

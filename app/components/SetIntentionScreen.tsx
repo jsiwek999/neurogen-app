@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 type Props = {
   onContinue: (intention: string) => void;
-  onBack: () => void;
+  onBack?: () => void;
 };
 
 const SetIntentionScreen: React.FC<Props> = ({ onContinue, onBack }) => {
@@ -21,9 +21,11 @@ const SetIntentionScreen: React.FC<Props> = ({ onContinue, onBack }) => {
         onChange={(e) => setIntention(e.target.value)}
       />
       <div className="flex gap-4">
-        <button className="px-4 py-2 bg-gray-400 text-white rounded-xl" onClick={onBack}>
-          Back
-        </button>
+        {onBack && (
+          <button className="px-4 py-2 bg-gray-400 text-white rounded-xl" onClick={onBack}>
+            Back
+          </button>
+        )}
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-xl"
           onClick={() => onContinue(intention)}

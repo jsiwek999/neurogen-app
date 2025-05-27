@@ -8,12 +8,12 @@ const archetypes = [
   "Mirror",
   "Torchbearer",
   "Phoenix Spirit",
-  // Add your actual archetypes here!
+  // Add or edit archetypes here
 ];
 
 type Props = {
   onContinue: (archetype: string) => void;
-  onBack: () => void;
+  onBack?: () => void;
 };
 
 const ArchetypeSelectScreen: React.FC<Props> = ({ onContinue, onBack }) => {
@@ -36,9 +36,11 @@ const ArchetypeSelectScreen: React.FC<Props> = ({ onContinue, onBack }) => {
         ))}
       </div>
       <div className="flex gap-4">
-        <button className="px-4 py-2 bg-gray-400 text-white rounded-xl" onClick={onBack}>
-          Back
-        </button>
+        {onBack && (
+          <button className="px-4 py-2 bg-gray-400 text-white rounded-xl" onClick={onBack}>
+            Back
+          </button>
+        )}
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-xl"
           onClick={() => selected && onContinue(selected)}
