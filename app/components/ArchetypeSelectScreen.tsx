@@ -12,11 +12,11 @@ const archetypes = [
 ];
 
 type Props = {
-  onNext: (archetype: string) => void;
+  onContinue: (archetype: string) => void;
   onBack: () => void;
 };
 
-const ArchetypeSelectScreen: React.FC<Props> = ({ onNext, onBack }) => {
+const ArchetypeSelectScreen: React.FC<Props> = ({ onContinue, onBack }) => {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
@@ -41,7 +41,7 @@ const ArchetypeSelectScreen: React.FC<Props> = ({ onNext, onBack }) => {
         </button>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-xl"
-          onClick={() => selected && onNext(selected)}
+          onClick={() => selected && onContinue(selected)}
           disabled={!selected}
         >
           Next

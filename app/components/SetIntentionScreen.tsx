@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 
 type Props = {
-  onNext: (intention: string) => void;
+  onContinue: (intention: string) => void;
   onBack: () => void;
 };
 
-const SetIntentionScreen: React.FC<Props> = ({ onNext, onBack }) => {
+const SetIntentionScreen: React.FC<Props> = ({ onContinue, onBack }) => {
   const [intention, setIntention] = useState("");
 
   return (
@@ -26,7 +26,7 @@ const SetIntentionScreen: React.FC<Props> = ({ onNext, onBack }) => {
         </button>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-xl"
-          onClick={() => onNext(intention)}
+          onClick={() => onContinue(intention)}
           disabled={!intention}
         >
           Next
