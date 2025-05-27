@@ -33,8 +33,8 @@ const LandingPortal: React.FC = () => {
 
   const handleEnter = (e: FormEvent) => {
     e.preventDefault();
-    // Add any extra entry rituals here if desired
-    router.push('/app');
+    // ROUTE TO ONBOARDING!
+    router.push('/onboarding');
   };
 
   return (
