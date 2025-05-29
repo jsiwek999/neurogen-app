@@ -1,7 +1,7 @@
 // /components/MirrorPanel.tsx
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { STATES } from '../config/stateConfig';
+import { STATES } from 'utils/stateConfig';
 import StateSelector from './StateSelector';
 import ChatJournal from './ChatJournal';
 
