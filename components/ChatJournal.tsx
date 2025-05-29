@@ -1,6 +1,10 @@
 import React from "react";
 
-export default function ChatJournal({ journal }) {
+type ChatJournalProps = {
+  journal: { text: string }[];
+};
+
+export default function ChatJournal({ journal }: ChatJournalProps) {
   return (
     <div style={{ marginTop: 32, background: "rgba(0,0,0,0.3)", padding: 16, borderRadius: 12, color: "gold" }}>
       <h3>Your Journal</h3>
@@ -11,4 +15,3 @@ export default function ChatJournal({ journal }) {
     </div>
   );
 }
-
