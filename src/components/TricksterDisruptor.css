@@ -1,0 +1,39 @@
+.trickster-container {
+  background-image: url("/chamber-of-challenges-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #ff9efc;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.trickster-glitch {
+  font-size: 2rem;
+  text-shadow: 1px 1px #ff00ff, -1px -1px #00ffff;
+  animation: glitch 1.5s infinite;
+}
+
+.trickster-text {
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes jitter {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.05); }
+}

@@ -1,0 +1,39 @@
+/* RitualMirror.css */
+.ritual-container {
+  background-image: url("/mirror-hallway-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #d2d2ff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.ritual-glow {
+  font-size: 2rem;
+  color: #ffffff;
+  text-shadow: 0 0 15px #b9b9ff, 0 0 30px #8d88ff;
+  margin-bottom: 1rem;
+  animation: pulseGlow 4s infinite ease-in-out;
+}
+
+.ritual-text {
+  font-size: 1.2rem;
+  opacity: 0.85;
+  line-height: 1.6;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { text-shadow: 0 0 10px #b9b9ff, 0 0 20px #8d88ff; }
+  50% { text-shadow: 0 0 20px #cfcaff, 0 0 40px #b8b3ff; }
+}

@@ -1,0 +1,32 @@
+.mentor-container {
+  background-image: url("/tavern-texture.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #cce7ff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.mentor-glow {
+  font-size: 2rem;
+  color: #ffffff;
+  text-shadow: 0 0 12px #7fc4ff, 0 0 24px #4791db;
+  margin-bottom: 1rem;
+  animation: glowFade 4s ease-in-out infinite;
+}
+
+.mentor-text {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+@keyframes glowFade {
+  0%, 100% { text-shadow: 0 0 10px #7fc4ff; }
+  50% { text-shadow: 0 0 20px #a6dfff; }
+}

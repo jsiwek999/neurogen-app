@@ -1,0 +1,26 @@
+.archive-container {
+  background-image: url("/library-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #333;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.archive-header {
+  font-size: 2rem;
+  color: #222;
+  border-bottom: 2px solid #aaa;
+  margin-bottom: 1rem;
+}
+
+.archive-text {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
