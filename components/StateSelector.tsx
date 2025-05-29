@@ -1,6 +1,6 @@
 // /components/StateSelector.tsx
 import React from "react";
-import { STATES, StateConfig } from "../config/stateConfig";
+import { STATES, StateConfig } from "utils/stateConfig";
 
 type StateSelectorProps = {
   selectedState: StateConfig;
