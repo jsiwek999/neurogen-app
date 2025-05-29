@@ -1,6 +1,6 @@
-// /components/RoomContainer.tsx
+// components/RoomContainer.tsx
 'use client';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import Link from 'next/link';
 import MirrorPanel from './MirrorPanel';
 
@@ -11,24 +11,38 @@ type RoomData = {
   glyph?: string;
 };
 
-type RoomContainerProps = {
-  room: RoomData;
+type ArchetypeData = {
+  name: string;
+  description: string;
+  emxTags: string[];
+  symbol: string;
 };
 
-export default function RoomContainer({ room }: RoomContainerProps) {
+type RoomContainerProps = {
+  room?: RoomData;
+  archetype?: ArchetypeData;
+  children?: ReactNode;
+};
+
+export default function RoomContainer({ room, archetype, children }: RoomContainerProps) {
+  const isArchetype = !!archetype;
+  const title = isArchetype ? archetype!.name : room!.title;
+  const prompt = isArchetype ? archetype!.description : room!.prompt;
+  const background = isArchetype ? '/default-bg.jpg' : room!.background; // Fallback for archetype pages
+  const glyph = isArchetype ? archetype!.symbol : room?.glyph;
+
   return (
     <div
       style={{
-        backgroundImage: `url(${room.background})`,
+        backgroundImage: `url(${background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '100vh',
         padding: '2rem',
         color: 'white',
-        position: 'relative', // Needed for positioning the link
+        position: 'relative',
       }}
     >
-      {/* Back to Portal Room */}
       <Link
         href="/portal-room"
         style={{
@@ -49,24 +63,16 @@ export default function RoomContainer({ room }: RoomContainerProps) {
         ← Return to Portal Room
       </Link>
 
-      {/* Glyph Header */}
-      {room.glyph && (
-        <div
-          style={{
-            fontSize: '2.5rem',
-            textAlign: 'center',
-            marginBottom: '1rem',
-          }}
-        >
-          {room.glyph}
+      {glyph && (
+        <div style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '1rem' }}>
+          {glyph}
         </div>
       )}
 
-      <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>{room.title}</h1>
-      <p style={{ textAlign: 'center', marginBottom: '2rem' }}>{room.prompt}</p>
+      <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>{title}</h1>
+      <p style={{ textAlign: 'center', marginBottom: '2rem' }}>{prompt}</p>
 
-      {/* Mirror or other room interaction */}
-      <MirrorPanel prompt={room.prompt} />
+      {children ? children : <MirrorPanel prompt={prompt} />}
     </div>
   );
 }
