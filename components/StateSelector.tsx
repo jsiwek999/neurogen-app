@@ -1,15 +1,32 @@
+// /components/StateSelector.tsx
 import React from "react";
-import { STATES } from "utils/stateConfig";
+import { STATES, StateConfig } from "../config/stateConfig";
 
-export default function StateSelector({ selectedState, onSelect }) {
+type StateSelectorProps = {
+  selectedState: StateConfig;
+  onSelect: (state: StateConfig) => void;
+};
+
+export default function StateSelector({
+  selectedState,
+  onSelect,
+}: StateSelectorProps) {
   return (
-    <div style={{ marginBottom: 16, display: "flex", gap: 8, justifyContent: "center" }}>
+    <div
+      style={{
+        marginBottom: 16,
+        display: "flex",
+        gap: 8,
+        justifyContent: "center",
+      }}
+    >
       {STATES.map((s) => (
         <button
           key={s.label}
           onClick={() => onSelect(s)}
           style={{
-            background: selectedState.label === s.label ? s.color : "#444",
+            background:
+              selectedState.label === s.label ? s.color : "#444",
             color: "white",
             padding: "0.5rem 1rem",
             borderRadius: "999px",
