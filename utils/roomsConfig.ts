@@ -36,4 +36,22 @@ export const roomsConfig = {
     background: '/stoic-room-bg.png',
     glyph: '🏛️',
   },
+  'glitchcore': {
+    title: 'Glitchcore',
+    prompt: 'Truth fractures through the glitch. Chaos is a code—find the rhythm.',
+    background: '/glitchcore-bg.png',
+    glyph: '✶',
+  },
+  'godform': {
+    title: 'Godform',
+    prompt: 'Channel divinity through presence. You are the embodiment of becoming.',
+    background: '/godform-bg.png',
+    glyph: '☲',
+  },
+  'mentor': {
+    title: 'The Mentor',
+    prompt: 'A calm voice, a guiding flame. Walk with me and remember who you are.',
+    background: '/mentor-bg.png',
+    glyph: '🦉',
+  },
 };

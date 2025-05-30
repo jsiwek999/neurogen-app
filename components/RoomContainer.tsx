@@ -24,11 +24,27 @@ type RoomContainerProps = {
 };
 
 export default function RoomContainer({ room, archetype, children }: RoomContainerProps) {
+  if (!room && !archetype) {
+    throw new Error('RoomContainer requires either a room or archetype prop.');
+  }
+
   const isArchetype = !!archetype;
-  const title = isArchetype ? archetype!.name : room!.title;
-  const prompt = isArchetype ? archetype!.description : room!.prompt;
-  const backgroundImage = isArchetype ? '/stoic-room-bg.png' : room!.background;
-  const glyph = isArchetype ? archetype!.symbol : room?.glyph;
+
+  const title = isArchetype
+    ? archetype!.name
+    : room?.title ?? 'Untitled Room';
+
+  const prompt = isArchetype
+    ? archetype!.description
+    : room?.prompt ?? '';
+
+  const backgroundImage = isArchetype
+    ? '/stoic-room-bg.png'
+    : room?.background ?? '/default-room-bg.png'; // Fallback added
+
+  const glyph = isArchetype
+    ? archetype!.symbol
+    : room?.glyph;
 
   return (
     <div

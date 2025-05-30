@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import RoomLayout from '../../components/RoomLayout'; // Adjust path if needed
-import RoomCard from 'components/RoomCard'; // Confirm this path works for you
+import RoomLayout from '../../components/RoomLayout';
+import RoomCard from 'components/RoomCard';
 
 export default function PortalRoomPage() {
   return (
@@ -51,7 +51,27 @@ export default function PortalRoomPage() {
           emoji="🏛️"
           description="Enter the calm. Reflect with the archetype of clarity and resilience."
         />
+        <RoomCard
+          href="/portal-room/glitchcore"
+          title="Glitchcore"
+          emoji="🧬"
+          description="Step into the static. Embrace fragmentation as creative force."
+        />
+        <RoomCard
+          href="/portal-room/godform"
+          title="Godform"
+          emoji="⚡"
+          description="Invoke the divine spark. Claim your mythic power."
+        />
+        <RoomCard
+          href="/portal-room/mentor"
+          title="Mentor"
+          emoji="🧙‍♂️"
+          description="Receive guidance from the wisdom beyond. You are not alone."
+        />
       </div>
     </RoomLayout>
   );
 }
+
+          
