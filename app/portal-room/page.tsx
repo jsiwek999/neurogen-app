@@ -45,6 +45,12 @@ export default function PortalRoomPage() {
           emoji="🔮"
           description="Gaze into the reflections. What aspect of you awakens?"
         />
+        <RoomCard
+          href="/portal-room/stoic-room"
+          title="Stoic Room"
+          emoji="🏛️"
+          description="Enter the calm. Reflect with the archetype of clarity and resilience."
+        />
       </div>
     </RoomLayout>
   );

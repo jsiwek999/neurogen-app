@@ -1,4 +1,3 @@
-// components/RoomContainer.tsx
 'use client';
 import React, { ReactNode } from 'react';
 import Link from 'next/link';
@@ -28,13 +27,13 @@ export default function RoomContainer({ room, archetype, children }: RoomContain
   const isArchetype = !!archetype;
   const title = isArchetype ? archetype!.name : room!.title;
   const prompt = isArchetype ? archetype!.description : room!.prompt;
-  const background = isArchetype ? '/default-bg.jpg' : room!.background; // Fallback for archetype pages
+  const backgroundImage = isArchetype ? '/stoic-room-bg.png' : room!.background;
   const glyph = isArchetype ? archetype!.symbol : room?.glyph;
 
   return (
     <div
       style={{
-        backgroundImage: `url(${background})`,
+        backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '100vh',

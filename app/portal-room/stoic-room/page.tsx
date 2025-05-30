@@ -1,14 +1,9 @@
 // app/portal-room/stoic-room/page.tsx
+'use client';
+import { roomsConfig } from 'utils/roomsConfig';
 import RoomContainer from 'components/RoomContainer';
-import StoicMirror from 'src/components/StoicMirror';
-import { archetypesConfig } from 'utils/archetypesConfig';
 
-export default function StoicRoomPage() {
-  const archetype = archetypesConfig['stoic'];
-
-  return (
-    <RoomContainer archetype={archetype}>
-      <StoicMirror />
-    </RoomContainer>
-  );
+export default function StoicMirror() {
+  const room = roomsConfig['stoic-room'];
+  return <RoomContainer room={room} />;
 }
