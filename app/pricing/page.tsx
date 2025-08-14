@@ -1,6 +1,6 @@
 export const metadata = { title: "Subscribe — EMX Protocol" };
 
-const LINK = process.env.NEXT_PUBLIC_SUBSCRIBE_URL;         // Stripe Payment Link (set later)
+const LINK = process.env.NEXT_PUBLIC_SUBSCRIBE_URL;
 const PRODUCT = process.env.NEXT_PUBLIC_PRODUCT_NAME || "EMX Protocol";
 const isLive = !!LINK && !LINK.includes("REPLACE_ME");
 
@@ -11,7 +11,6 @@ export default function Pricing() {
       <p className="text-sm" style={{opacity:.8}}>
         Unlock {PRODUCT} for just <b>$4.99/month</b>.
       </p>
-
       {isLive ? (
         <>
           <a className="btn" href={LINK!}>Subscribe — $4.99 / month</a>
