@@ -1,0 +1,71 @@
+:root{
+  --bg-start:#0f172a; /* slate-900 */
+  --bg-end:#0b1323;
+  --text:#e5e7eb;     /* zinc-200 */
+  --muted:#cbd5e1b3;  /* slate-300 @ 70% */
+  --border:#ffffff1f; /* white @ 12% */
+  --card:#ffffff0f;   /* white @ 6% */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  color:var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background:
+    radial-gradient(1200px 700px at 20% -10%, #1f2937 0%, transparent 70%),
+    linear-gradient(180deg, var(--bg-start), var(--bg-end));
+  background-attachment: fixed;
+}
+
+.container{ max-width: 980px; margin: 0 auto; padding: 28px; }
+
+h1,h2,h3{ margin:0 0 10px; }
+
+/* Basic building blocks used by the page */
+.card{
+  background: var(--card);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.input{
+  width:100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border:1px solid var(--border);
+  background:#0b1323;
+  color:var(--text);
+  outline:none;
+}
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:8px 14px; border-radius:9999px;
+  background:#ffffff1a; color:var(--text);
+  border:1px solid var(--border);
+  cursor:pointer; user-select:none;
+}
+.btn:hover{ background:#ffffff26 }
+.btn:disabled{ opacity:.5; cursor:not-allowed }
+.btn-ghost{ background:transparent; }
+
+pre{
+  background:#00000033;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+  overflow:auto;
+}
+
+.text-red-500{ color:#ef4444; } /* for error line *//* --- site chrome --- */
+.site-header{position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);backdrop-filter:blur(6px);background:#00000020}
+.header-inner,.footer-inner{display:flex;align-items:center;justify-content:space-between}
+.header-inner{padding:12px 28px}
+.brand{font-weight:800;letter-spacing:.06em;text-decoration:none;color:var(--text)}
+.nav a{margin-left:16px;text-decoration:none;color:var(--text);opacity:.8}
+.nav a:hover{opacity:1}
+.site-footer{border-top:1px solid var(--border);margin-top:48px;padding:18px 0;background:#00000020}
