@@ -1,14 +1,15 @@
-export const metadata = { title: "Subscribe — NEUROGEN" };
+export const metadata = { title: "Subscribe — EMX Protocol" };
 
-const LINK = process.env.NEXT_PUBLIC_SUBSCRIBE_URL; // set this later when Stripe is ready
+const LINK = process.env.NEXT_PUBLIC_SUBSCRIBE_URL;         // Stripe Payment Link (set later)
+const PRODUCT = process.env.NEXT_PUBLIC_PRODUCT_NAME || "EMX Protocol";
 const isLive = !!LINK && !LINK.includes("REPLACE_ME");
 
 export default function Pricing() {
   return (
     <div className="card space-y-4">
-      <h1 className="text-2xl font-semibold">NEUROGEN Pro</h1>
+      <h1 className="text-2xl font-semibold">{PRODUCT}</h1>
       <p className="text-sm" style={{opacity:.8}}>
-        Unlock premium rituals & faster generation for just <b>$4.99/month</b>.
+        Unlock {PRODUCT} for just <b>$4.99/month</b>.
       </p>
 
       {isLive ? (
