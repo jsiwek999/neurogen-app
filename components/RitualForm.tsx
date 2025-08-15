@@ -8,6 +8,7 @@ type HistItem = {
   ts: number;
   energy?: number;
   form?: number;
+  charged?: boolean;
 };
 
 const PRESETS = ["calm under pressure","focus now","resolve","presence","courage","grounded"];
@@ -29,12 +30,9 @@ function formDesc(v:number){
 
 export default function RitualForm() {
   const [goal, setGoal] = useState("calm under pressure");
-  const [energy, setEnergy] = useState<number>(() => {
-    try { const v = localStorage.getItem("emx-energy"); return v? Number(v) : 50; } catch { return 50; }
-  });
-  const [form, setForm] = useState<number>(() => {
-    try { const v = localStorage.getItem("emx-form"); return v? Number(v) : 50; } catch { return 50; }
-  });
+  const [energy, setEnergy] = useState<number>(() => { try { const v=localStorage.getItem("emx-energy"); return v? Number(v):50; } catch { return 50; }});
+  const [form, setForm] = useState<number>(() => { try { const v=localStorage.getItem("emx-form"); return v? Number(v):50; } catch { return 50; }});
+  const [charged, setCharged] = useState<boolean>(() => { try { return localStorage.getItem("emx-charged")==="1"; } catch { return false; }});
 
   const [output, setOutput] = useState("");
   const [error, setError] = useState<string|null>(null);
@@ -43,24 +41,39 @@ export default function RitualForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const KEY = "ritual-history";
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setHistory(JSON.parse(raw));
-    } catch {}
-  }, []);
+  // 10s micro-timer state
+  const MICRO_SECONDS = 10;
+  const [tActive, setTActive] = useState(false);
+  const [tRemaining, setTRemaining] = useState(MICRO_SECONDS);
 
+  useEffect(() => { try { const raw=localStorage.getItem(KEY); if(raw) setHistory(JSON.parse(raw)); } catch {} }, []);
   useEffect(() => { try { localStorage.setItem("emx-energy", String(energy)); } catch {} }, [energy]);
   useEffect(() => { try { localStorage.setItem("emx-form", String(form)); } catch {} }, [form]);
+  useEffect(() => { try { localStorage.setItem("emx-charged", charged? "1":"0"); } catch {} }, [charged]);
+
+  // timer tick
+  useEffect(() => {
+    let id:any = null;
+    if (tActive && tRemaining > 0) {
+      id = setInterval(() => { setTRemaining(s => s>0 ? s-1 : 0); }, 1000);
+    }
+    if (tRemaining === 0 && tActive) {
+      setTActive(false);
+    }
+    return () => { if(id) clearInterval(id); };
+  }, [tActive, tRemaining]);
+
+  function startTimer(){ setTActive(true); }
+  function pauseTimer(){ setTActive(false); }
+  function resetTimer(){ setTActive(false); setTRemaining(MICRO_SECONDS); }
 
   function persist(next: HistItem[]) {
     setHistory(next);
     try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {}
   }
-
-  function addToHistory(g: string, r: string, e:number, f:number) {
+  function addToHistory(g: string, r: string, e:number, f:number, c:boolean) {
     const id = (crypto as any).randomUUID?.() ?? String(Date.now()) + "-" + Math.random();
-    persist([{ id, goal: g, ritual: r, ts: Date.now(), energy: e, form: f }, ...history].slice(0,50));
+    persist([{ id, goal: g, ritual: r, ts: Date.now(), energy: e, form: f, charged: c }, ...history].slice(0,50));
   }
 
   const offline = (g: string) =>
@@ -81,12 +94,16 @@ export default function RitualForm() {
     if (!goal.trim()) return;
     setLoading(true); setError(null); setOutput("");
 
-    // We fold the sliders into the goal so the server doesn’t need to change
-    const styledGoal =
+    // Fold sliders + charge into the goal guidance (keeps server unchanged)
+    let styledGoal =
       goal.trim() + "\n" +
       "(Energy: " + energyDesc(energy) + " — target " + energy + "/100; " +
-      "Form: " + formDesc(form) + " — target " + form + "/100. " +
-      "Keep lines consistent with this vibe.)";
+      "Form: " + formDesc(form) + " — target " + form + "/100. ";
+    if (charged) {
+      styledGoal += "Charge: ON — include breath counts and cadence; add a 10-second settle cue and a clear closing gesture.)";
+    } else {
+      styledGoal += "Charge: OFF — keep concise without explicit timers.)";
+    }
 
     try {
       const res = await fetch("/api/ritual",{
@@ -105,7 +122,10 @@ export default function RitualForm() {
       if (!ritual) throw new Error("Empty response from generator.");
 
       setOutput(ritual);
-      addToHistory(goal, ritual, energy, form);
+      addToHistory(goal, ritual, energy, form, charged);
+
+      // If charged, auto-start the 10s micro-timer
+      if (charged) { resetTimer(); setTimeout(() => { startTimer(); }, 0); }
     } catch(err:any) {
       setError(String(err?.message || err));
       setOutput("Error generating ritual. Showing offline template.\n\n" + offline(goal));
@@ -120,7 +140,6 @@ export default function RitualForm() {
   }
 
   async function copy(text:string){ if(!text) return; try { await navigator.clipboard.writeText(text); } catch {} }
-
   function download(text:string,name="ritual.txt"){
     if(!text) return;
     const blob=new Blob([text],{type:"text/plain"});
@@ -131,9 +150,10 @@ export default function RitualForm() {
     a.click();
     URL.revokeObjectURL(url);
   }
-
   function removeFromHistory(id:string){ persist(history.filter(h=>h.id!==id)); }
   function clearHistory(){ persist([]); }
+
+  const progressPct = Math.max(0, (MICRO_SECONDS - tRemaining) / MICRO_SECONDS * 100);
 
   return (
     <div className="space-y-8">
@@ -158,35 +178,29 @@ export default function RitualForm() {
         </div>
         <div className="text-xs" style={{opacity:.7}}>Tip: double-click a preset to generate instantly.</div>
 
-        {/* Energy / Form sliders */}
-        <div className="grid md:grid-cols-2 gap-4">
+        {/* Energy / Form / Charge */}
+        <div className="grid md:grid-cols-3 gap-4">
           <div className="rounded-lg border p-3">
             <div className="text-sm font-medium">Energy</div>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={energy}
-              onChange={e=>setEnergy(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-xs" style={{opacity:.7}}>
-              {energy}/100 • {energyDesc(energy)}
-            </div>
+            <input type="range" min={0} max={100} value={energy} onChange={e=>setEnergy(Number(e.target.value))} className="w-full" />
+            <div className="text-xs" style={{opacity:.7}}>{energy}/100 • {energyDesc(energy)}</div>
           </div>
           <div className="rounded-lg border p-3">
             <div className="text-sm font-medium">Form</div>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={form}
-              onChange={e=>setForm(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-xs" style={{opacity:.7}}>
-              {form}/100 • {formDesc(form)}
+            <input type="range" min={0} max={100} value={form} onChange={e=>setForm(Number(e.target.value))} className="w-full" />
+            <div className="text-xs" style={{opacity:.7}}>{form}/100 • {formDesc(form)}</div>
+          </div>
+          <div className="rounded-lg border p-3 flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-medium">Charge</div>
+              <div className="text-xs" style={{opacity:.7}}>
+                When ON: add breath counts/cadence and a 10s settle cue.
+              </div>
             </div>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={charged} onChange={e=>setCharged(e.target.checked)} />
+              <span className="text-sm">ON</span>
+            </label>
           </div>
         </div>
 
@@ -212,6 +226,27 @@ export default function RitualForm() {
         <pre className="text-sm whitespace-pre-wrap bg-black/10 p-4 rounded-xl border border-white/10 min-h-[160px]">
 {output}
         </pre>
+
+        {/* Micro-timer appears only when charged + we have output */}
+        {charged && !!output && (
+          <div className="rounded-lg border p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">10-second micro-timer</div>
+              <div className="text-sm" style={{opacity:.7}}>{tRemaining}s</div>
+            </div>
+            <div className="h-2 rounded bg-black/10">
+              <div className="h-2 rounded" style={{ width: (progressPct + "%"), background:"rgba(0,0,0,0.4)" }} />
+            </div>
+            <div className="flex gap-2">
+              {!tActive ? (
+                <button type="button" className="btn" onClick={startTimer}>Start</button>
+              ) : (
+                <button type="button" className="btn" onClick={pauseTimer}>Pause</button>
+              )}
+              <button type="button" className="btn btn-ghost" onClick={resetTimer}>Reset</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* History */}
@@ -236,6 +271,7 @@ export default function RitualForm() {
                       {(typeof h.energy==="number" ? ("Energy "+h.energy+"/100") : "")}
                       {(typeof h.energy==="number" && typeof h.form==="number" ? " • " : "")}
                       {(typeof h.form==="number" ? ("Form "+h.form+"/100") : "")}
+                      {(typeof h.charged==="boolean" ? ( (h.energy||h.form)? " • ":"") + (h.charged? "Charged":"Uncharged") : "")}
                     </div>
                     <pre className="mt-1 text-xs whitespace-pre-wrap max-h-32 overflow-auto bg-black/5 p-2 rounded">
 {h.ritual}
@@ -244,7 +280,9 @@ export default function RitualForm() {
                   <div className="flex flex-col gap-2 shrink-0">
                     <button className="btn btn-ghost text-sm" onClick={() => navigator.clipboard.writeText(h.ritual)}>Copy</button>
                     <button className="btn btn-ghost text-sm" onClick={() => download(h.ritual, (h.goal||"ritual")+".txt")}>Download</button>
-                    <button className="btn btn-ghost text-sm" onClick={() => { setGoal(h.goal); setOutput(h.ritual); setError(null); }}>Load</button>
+                    <button className="btn btn-ghost text-sm" onClick={() => { setGoal(h.goal); setOutput(h.ritual); setError(null); }}>
+                      Load
+                    </button>
                     <button className="btn btn-ghost text-sm" onClick={() => removeFromHistory(h.id)} style={{color:"#ef4444"}}>Delete</button>
                   </div>
                 </div>
