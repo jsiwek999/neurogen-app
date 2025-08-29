@@ -1,0 +1,23 @@
+﻿import { cookies } from "next/headers";
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const c = await cookies(); // <-- await it
+
+  const signedIn = Boolean(
+    c.get("session") ||
+      c.get("auth-token") ||
+      c.get("next-auth.session-token") ||
+      c.get("__Secure-next-auth.session-token")
+  );
+
+  // ...rest of your layout
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
