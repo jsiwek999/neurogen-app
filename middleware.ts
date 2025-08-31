@@ -1,6 +1,4 @@
-﻿// middleware.ts
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+﻿import { NextResponse, NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(req: NextRequest) {
@@ -11,24 +9,26 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
+        // NextRequest cookies are read-only; use getAll here.
         getAll() {
           return req.cookies.getAll();
         },
+        // Mutate the RESPONSE cookies
         setAll(cookies) {
           cookies.forEach(({ name, value, options }) => {
-            // Next 13/14 compatible setter
-            res.cookies.set({ name, value, ...options });
+            res.cookies.set({ name, value, ...(options ?? {}) });
           });
         },
       },
-    },
+    }
   );
 
-  // Touch the session to sync cookies through middleware
-  await supabase.auth.getUser();
+  // Touch auth to ensure cookies are wired; non-fatal if it fails
+  try { await supabase.auth.getUser(); } catch {}
+
   return res;
 }
 
 export const config = {
-  matcher: ["/journal/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

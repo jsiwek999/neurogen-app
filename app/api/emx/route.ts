@@ -1,30 +1,16 @@
-// app/api/emx/route.ts
-import { NextResponse } from "next/server";
-import { emxCall } from "../../../lib/emx/client"; // <-- use relative to be safe
+﻿import { NextResponse } from "next/server";
+import { emxCall } from "../../../lib/emx/client";
 
-export const runtime = "nodejs"; // ok to switch to 'edge' later
-export const dynamic = "force-dynamic"; // avoid static optimization quirks
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { authoring } = await req.json();
-    if (typeof authoring !== "string" || !authoring.trim()) {
-      return NextResponse.json(
-        { error: "authoring required" },
-        { status: 400 },
-      );
-    }
-    const result = await emxCall(authoring);
+    const body = await req.json();
+    const result = await emxCall(body);
     return NextResponse.json(result);
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err?.message ?? "Internal error" },
-      { status: 500 },
-    );
+  } catch (err) {
+    console.error("[/api/emx] error:", err);
+    return NextResponse.json({ ok: false, error: "EMX call failed" }, { status: 500 });
   }
-}
-
-// Handy for quick pings / health checks
-export async function GET() {
-  return NextResponse.json({ ok: true });
 }
