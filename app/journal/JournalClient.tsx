@@ -42,7 +42,7 @@ const RITUALS: Ritual[] = [
   },
 ];
 
-type EventRow = { id: string; ritual_id: string; rating: number | null; completed_at: string };
+type EventRow = { slug: string; ritual_id: string; rating: number | null; completed_at: string };
 
 export default function JournalClient() {
   const params = useSearchParams();
