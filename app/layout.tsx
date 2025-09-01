@@ -1,17 +1,12 @@
-﻿// app/layout.tsx
-import "./globals.css";
-import { getUser } from "@/lib/supabase/server";
+﻿import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { ReactNode } from "react";
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const user = await getUser();
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        {/* Sticky top navigation */}
-        <Navbar user={user} />
-        {/* Page content */}
+        <Navbar />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20">
           {children}
         </div>
