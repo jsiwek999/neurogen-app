@@ -18,7 +18,7 @@ export default function Dashboard() {
     <section className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white">Journal</h2>
-        <Link href="/faq/rituals" className="rounded-lg border border-white/15 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10">
+        <Link href="/rituals" className="rounded-lg border border-white/15 px-3 py-1.5 text-xs text-white/80 hover:bg-white/10">
           Ritual FAQ
         </Link>
       </div>
