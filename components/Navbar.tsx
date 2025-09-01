@@ -1,7 +1,7 @@
 // components/Navbar.tsx
 import Link from "next/link";
 
-export default function Navbar({ user }: { user: any }) {
+export default function Navbar({ user }: { user?: any }) {
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
