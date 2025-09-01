@@ -26,3 +26,6 @@ export default function RitualPage(props: any) {
     </main>
   );
 }
+
+// app/ritual/[slug]/page.tsx
+export default function RitualPage({ params }: { params: { slug: string } }) { /* ... */ }
