@@ -4,11 +4,7 @@
 
 /* Dark base */
 :root, html, body {
-  background-color: #0B1220;
+  background-color: #020b1d;
   color: #fff;
   color-scheme: dark;
 }
-
-/* If you still have a bright blue frame, delete any old debug like this:
-html::after { content:""; position:fixed; inset:0; outline:12px solid #06f; outline-offset:-12px; pointer-events:none; z-index:2147483647; }
-*/

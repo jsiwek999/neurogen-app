@@ -10,13 +10,18 @@ export async function getServerSupabase() {
     {
       cookies: {
         getAll() { return cookieStore.getAll(); },
-        setAll(cookies) { cookies.forEach(({ name, value, options }) =>
-          cookieStore.set({ name, value, ...options })
-        ); },
+        setAll(cookies) {
+          cookies.forEach(({ name, value, options }) =>
+            cookieStore.set({ name, value, ...options })
+          );
+        },
       },
     }
   );
 }
+
+// ✅ Alias so existing imports keep working
+export { getServerSupabase as createSupabaseServerClient };
 
 export async function getUser() {
   const supabase = await getServerSupabase();

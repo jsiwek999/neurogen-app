@@ -1,5 +1,4 @@
-﻿// app/auth/callback/route.ts
-export const runtime = "nodejs";
+﻿export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
@@ -16,21 +15,22 @@ export async function GET(req: Request) {
     {
       cookies: {
         getAll() { return cookieStore.getAll(); },
-        setAll(cookies) { cookies.forEach(({ name, value, options }) =>
-          cookieStore.set({ name, value, ...options })
-        ); },
+        setAll(cookies) {
+          cookies.forEach(({ name, value, options }) =>
+            cookieStore.set({ name, value, ...options })
+          );
+        },
       },
     }
   );
 
-  // Supabase expects a string (full URL works)
+  // URL must contain ?code & ?state — full URL string is accepted
   const { error } = await supabase.auth.exchangeCodeForSession(url.toString());
   if (error) {
-    console.error("[auth/callback] exchange error:", error.message);
+    console.error("[auth/callback] exchange error:", error.message, { href: url.toString() });
     return NextResponse.redirect(new URL("/login?error=auth", url.origin));
   }
 
-  // Support ?next=/where/user/was
   const next = url.searchParams.get("next") || "/";
   return NextResponse.redirect(new URL(next, url.origin));
 }

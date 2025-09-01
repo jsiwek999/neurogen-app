@@ -16,3 +16,4 @@ coverage/
 .env.*
 !.env.example
 *.DO_NOT_UPLOAD
+.env.local
