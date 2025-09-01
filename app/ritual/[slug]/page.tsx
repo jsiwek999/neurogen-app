@@ -2,18 +2,26 @@
 import { notFound } from "next/navigation";
 
 const META: Record<string, { title: string; emx: string }> = {
-  reset:  { title: "The 2-Minute Reset", emx: `[ritual]\n[breath:box cycles="3"/]\n[/ritual]` },
-  mirror: { title: "Mirror Invocation",  emx: `[ritual]\n[mirror]Speak once.[/mirror]\n[/ritual]` },
-  submodal:{ title: "Submodal Switch",   emx: `[ritual]\n[submodal/]\n[/ritual]` },
+  reset: {
+    title: "The 2-Minute Reset",
+    emx: `[ritual]\n[breath:box cycles="3"/]\n[/ritual]`,
+  },
+  mirror: {
+    title: "Mirror Invocation",
+    emx: `[ritual]\n[mirror]Speak once.[/mirror]\n[/ritual]`,
+  },
+  submodal: {
+    title: "Submodal Switch",
+    emx: `[ritual]\n[submodal/]\n[/ritual]`,
+  },
 };
 
 export async function generateStaticParams() {
-  return Object.keys(META).map((slug) => ({ slug })); // ✅ { slug }
+  // Must return objects with { slug }
+  return Object.keys(META).map((slug) => ({ slug }));
 }
 
-// Deliberately untyped to bypass the flaky typed-routes check
-export default function RitualPage(props: any) {
-  const { params } = props as { params: { slug: string } };
+export default function RitualPage({ params }: { params: { slug: string } }) {
   const cfg = META[params.slug];
   if (!cfg) return notFound();
 
@@ -26,6 +34,3 @@ export default function RitualPage(props: any) {
     </main>
   );
 }
-
-// app/ritual/[slug]/page.tsx
-export default function RitualPage({ params }: { params: { slug: string } }) { /* ... */ }
