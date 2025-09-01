@@ -1,7 +1,7 @@
 ﻿// app/layout.tsx
 import "./globals.css";
 import { getUser } from "@/lib/supabase/server";
-import Navbar from "@/components/Navbar";
+import Navbar from "../components/Navbar";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
