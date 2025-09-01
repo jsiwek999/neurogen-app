@@ -25,7 +25,7 @@ export default function About() {
       </div>
 
       <div className="mt-8">
-        <Link href="/start-here" className="underline hover:no-underline">
+        <Link href="/start" className="underline hover:no-underline">
           Start Here →
         </Link>
       </div>
