@@ -42,7 +42,15 @@ const RITUALS: Ritual[] = [
   },
 ];
 
-type EventRow = { slug: string; ritual_id: string; rating: number | null; completed_at: string };
+// near the top of JournalClient.tsx
+type EventRow = {
+  id?: string;                // 👈 add this (optional if not always present)
+  ritual_id: string;
+  rating: number | null;      // or number, match your payload
+  completed_at: string;       // ISO string
+  // ...whatever else you already had
+};
+
 
 export default function JournalClient() {
   const params = useSearchParams();
@@ -163,6 +171,13 @@ export default function JournalClient() {
                   <span className="opacity-80">{e.rating ? `⭐ ${e.rating}` : ""}</span>
                 </li>
               );
+              <li
+  key={e.id ?? `${e.ritual_id}:${e.completed_at}`}
+  className="text-sm flex items-center justify-between"
+>
+  {/* ... */}
+</li>
+
             })}
           </ul>
         )}
