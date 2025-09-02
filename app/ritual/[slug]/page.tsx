@@ -4,15 +4,15 @@ import { notFound } from "next/navigation";
 const META: Record<string, { title: string; emx: string }> = {
   reset: {
     title: "The 2-Minute Reset",
-    emx: [ritual]\n[breath:box cycles="3"/]\n[/ritual],
+    emx: '[ritual]\n[breath:box cycles="3"/]\n[/ritual]',
   },
   mirror: {
     title: "Mirror Invocation",
-    emx: [ritual]\n[mirror]Speak once.[/mirror]\n[/ritual],
+    emx: '[ritual]\n[mirror]Speak once.[/mirror]\n[/ritual]',
   },
   submodal: {
     title: "Submodal Switch",
-    emx: [ritual]\n[submodal/]\n[/ritual],
+    emx: '[ritual]\n[submodal/]\n[/ritual]',
   },
 };
 
