@@ -1,84 +1,64 @@
-// lib/emx/parse.ts
-const BREATH_RE = /\[breath\s+(\d+)-(\d+)-(\d+)\]/i;
-const SHIFT_RE = /\[shift\s+([a-zA-Z_-]+)\]/i;
-const JOURNAL_RE = /\[journal\](.*)$/im;
-const MIRROR_RE = /\[mirror\](.*)$/im;
-const INSTALL_RE =
-  /\[install\s+belief=\"([^\"]+)\"(?:\s+method=\"([^\"]+)\")?\]/i;
-const DISRUPT_RE = /\[disrupt\](.*)$/im;
+import type { EmxDocument, EmxNode, EmxTagName } from "./types";
 
-export function parseAuthoringToHints(input: string) {
-  const hints: any[] = [];
+const TAGS = new Set<EmxTagName>([
+  "shift","breath","mirror","journal","submodal","install","disrupt"
+]);
 
-  const breath = input.match(BREATH_RE);
-  if (breath) {
-    hints.push({
-      type: "breath",
-      inhale: +breath[1],
-      hold: +breath[2],
-      exhale: +breath[3],
-      cycles: 3,
-    });
+export function parseEmx(src: string): EmxDocument {
+  const nodes: EmxNode[] = [];
+  const re = /\[(\w+)([^\]]*)\](?:([\s\S]*?)\[\/\1\])?/g;
+  let last = 0; let m: RegExpExecArray | null;
+
+  while ((m = re.exec(src))) {
+    if (m.index > last) nodes.push({ type: "text", value: src.slice(last, m.index) });
+
+    const name = m[1].toLowerCase() as EmxTagName;
+    if (!TAGS.has(name)) { nodes.push({ type: "text", value: m[0] }); last = re.lastIndex; continue; }
+
+    const attrs: Record<string,string> = {};
+    m[2]?.trim().replace(/(\w+)="([^"]*)"/g, (_, k, v) => (attrs[k]=v, "")); // naive attr parse
+
+    const inner = m[3];
+    if (inner != null) {
+      nodes.push({ type: "tag", tag: { name, attrs }, children: [{ type:"text", value: inner }] });
+    } else {
+      nodes.push({ type: "tag", tag: { name, attrs }, children: [] });
+    }
+    last = re.lastIndex;
   }
+  if (last < src.length) nodes.push({ type: "text", value: src.slice(last) });
+  return { nodes };
+}
 
-  const shift = input.match(SHIFT_RE);
-  if (shift) {
-    hints.push({ type: "state", name: shift[1].toLowerCase() });
-  }
+function textOf(nodes: EmxNode[]): string {
+  return nodes.map(n => n.type === "text" ? n.value : textOf(n.children)).join("").trim();
+}
 
-  const mirror = input.match(MIRROR_RE);
-  if (mirror) {
-    hints.push({
-      type: "mirror",
-      prompt: mirror[1].trim() || "What are you noticing right now?",
-    });
-  }
+export type EmxHint = { tag: EmxTagName; text: string; attrs?: Record<string,string> };
 
-  const journal = input.match(JOURNAL_RE);
-  if (journal) {
-    hints.push({
-      type: "journal",
-      prompt: journal[1].trim() || "Write three lines.",
-      min_lines: 3,
-    });
-  }
-
-  const install = input.match(INSTALL_RE);
-  if (install) {
-    hints.push({
-      type: "install",
-      belief: install[1],
-      method: (install[2] as any) || undefined,
-    });
-  }
-
-  const disrupt = input.match(DISRUPT_RE);
-  if (disrupt) {
-    hints.push({ type: "disrupt", action: disrupt[1].trim() });
-  }
-
+export function parseAuthoringToHints(src: string): EmxHint[] {
+  const doc = parseEmx(src);
+  const hints: EmxHint[] = [];
+  const walk = (ns: EmxNode[]) => {
+    for (const n of ns) {
+      if (n.type === "tag") {
+        hints.push({ tag: n.tag.name, text: textOf(n.children), attrs: n.tag.attrs ?? {} });
+        if (n.children.length) walk(n.children);
+      }
+    }
+  };
+  walk(doc.nodes);
   return hints;
 }
 
-export function buildDirectiveFooter(hints: any[]): string {
-  if (!hints.length) return "";
-  const lines = hints.map((h) => {
-    switch (h.type) {
-      case "breath":
-        return `- breath: ${h.inhale}/${h.hold}/${h.exhale} for ${h.cycles ?? 3} cycles`;
-      case "state":
-        return `- shift: ${h.name}`;
-      case "mirror":
-        return `- mirror: ${h.prompt}`;
-      case "journal":
-        return `- journal: ${h.min_lines ?? 3} lines: ${h.prompt}`;
-      case "install":
-        return `- install: ${h.belief}${h.method ? " via " + h.method : ""}`;
-      case "disrupt":
-        return `- disrupt: ${h.action}`;
-      default:
-        return `- ${h.type}`;
-    }
+export function buildDirectiveFooter(hints: EmxHint[]): string {
+  if (!hints?.length) return "";
+  const lines = hints.map(h => {
+    const atts = h.attrs && Object.keys(h.attrs).length
+      ? " " + Object.entries(h.attrs).map(([k,v]) => `${k}="${v}"`).join(" ")
+      : "";
+    const txt = h.text ? `: ${h.text}` : "";
+    return `- [${h.tag}]${atts}${txt}`;
   });
-  return `\n\nEMX_DIRECTIVES:\n${lines.join("\n")}\n`;
+  return `\n\n[EMX Directives]\n${lines.join("\n")}`;
 }

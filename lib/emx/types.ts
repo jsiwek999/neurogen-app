@@ -1,7 +1,10 @@
-// lib/emx/types.ts
-export type { EmxEvent, EmxMachine } from './schema';
+export type EmxTagName =
+  | "shift" | "breath" | "mirror" | "journal" | "submodal" | "install" | "disrupt";
 
-export interface EmxResult {
-  human: string;
-  machine: import('./schema').EmxMachine;
-}
+export interface EmxTag { name: EmxTagName; attrs?: Record<string,string>; content?: string; }
+
+export type EmxNode =
+  | { type: "text"; value: string }
+  | { type: "tag"; tag: EmxTag; children: EmxNode[] };
+
+export interface EmxDocument { nodes: EmxNode[] }
