@@ -1,16 +1,16 @@
 ﻿// app/rituals/page.tsx
 import Link from "next/link";
-import { listRitualSlugs, getRitualBySlug } from "@/lib/rituals";
+import { getAllRitualSlugs, getRitualBySlug } from "@/lib/rituals";
 
 export const runtime = "nodejs";
 export const dynamic = "force-static";
 
 export default async function RitualsIndex() {
-  const slugs = await listRitualSlugs();
+  const slugs = await getAllRitualSlugs();
   const items = await Promise.all(
     slugs.map(async (slug) => {
       const r = await getRitualBySlug(slug);
-      return { slug, title: r?.title ?? slug, excerpt: r?.body?.slice(0, 140) ?? "" };
+      return { slug, title: r?.title ?? slug, excerpt: r?.summary ?? "" };
     })
   );
 
@@ -28,7 +28,7 @@ export default async function RitualsIndex() {
                   {title}
                 </Link>
               </h2>
-              {excerpt && <p className="mt-1 text-sm text-neutral-600">{excerpt}…</p>}
+              {excerpt && <p className="mt-1 text-sm text-neutral-600">{excerpt}</p>}
             </li>
           ))}
         </ul>
