@@ -1,19 +1,23 @@
-export const metadata = {
+import type { Metadata } from "next";
+import "./globals.css";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
+
+export const metadata: Metadata = {
   title: "EMX Protocol",
-  description: "Rapid state-change tools for emotional sovereignty in under 2 minutes.",
-  metadataBase: new URL("https://emxprotocol.com"),
-  openGraph: {
-    title: "EMX Protocol",
-    description: "Shift your state. Reclaim your power.",
-    url: "https://emxprotocol.com",
-    siteName: "EMX Protocol",
-    // images: ["/og/og-image.png"], // ← remove for now
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "EMX Protocol",
-    description: "Rapid state-change tools for emotional sovereignty.",
-    // images: ["/og/og-image.png"], // ← remove for now
-  },
+  description: "Rapid state-change tools for emotional sovereignty.",
 };
+
+export default function RootLayout(
+  { children }: Readonly<{ children: React.ReactNode }>
+) {
+  return (
+    <html lang="en">
+      <body className="bg-background text-white">
+        <SiteHeader />
+        <main className="min-h-screen">{children}</main>
+        <SiteFooter />
+      </body>
+    </html>
+  );
+}
