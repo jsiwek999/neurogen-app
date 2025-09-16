@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Route } from "next";
 
-const NAV: { name: string; href: string }[] = [
-  { name: "Home", href: "/" },
-  { name: "Rituals", href: "/rituals" },      // ensure this route exists
-  { name: "Start Here", href: "/start-here" },
-  { name: "Blog", href: "/blog" },
-  { name: "Get Updates", href: "/updates" },  // ← NEW
+// Make sure these routes actually exist in /app/*
+// If your rituals page is /app/ritual/page.tsx, change "/rituals" -> "/ritual"
+const NAV: { name: string; href: Route }[] = [
+  { name: "Home", href: "/" as Route },
+  { name: "Rituals", href: "/rituals" as Route },
+  { name: "Start Here", href: "/start-here" as Route },
+  { name: "Blog", href: "/blog" as Route },
+  { name: "Get Updates", href: "/updates" as Route },
 ];
 
 export default function SiteHeader() {
