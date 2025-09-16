@@ -17,3 +17,10 @@ coverage/
 !.env.example
 *.DO_NOT_UPLOAD
 .env.local
+
+# Windows reserved-name artifact
+/NUL
+
+# local scratch
+/prisma.old/
+
