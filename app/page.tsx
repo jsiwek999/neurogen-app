@@ -52,10 +52,7 @@ export default function HomePage() {
         >
           Explore rituals
         </Link>
-        <Link
-          href={"/opt-in" as Route}
-          className="rounded-lg border border-white/15 px-4 py-2 text-sm hover:bg-white/10"
-        >
+        <Link href={"/updates" as Route} className="btn">
           Get updates
         </Link>
       </div>
