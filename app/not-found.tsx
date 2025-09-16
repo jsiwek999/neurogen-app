@@ -1,9 +1,8 @@
-// app/not-found.tsx
 export default function NotFound() {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-24 text-center">
-      <h1 className="text-3xl font-semibold">Lost in the Mirror</h1>
-      <p className="mt-2 text-white/70">This path doesn’t exist (yet).</p>
-    </section>
+    <div className="mx-auto max-w-3xl p-6">
+      <h1 className="text-2xl font-bold mb-2">Page not found</h1>
+      <p className="text-gray-300">That door doesn’t open. Try the nav above.</p>
+    </div>
   );
 }
