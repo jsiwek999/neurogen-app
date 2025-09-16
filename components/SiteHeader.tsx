@@ -1,15 +1,14 @@
-// components/SiteHeader.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { Route } from "next";
 
-const NAV: { name: string; href: Route }[] = [
-  { name: "Home", href: "/" as Route },
-  { name: "Rituals", href: "/rituals" as Route },
-  { name: "Start Here", href: "/start-here" as Route }, // ✅ correct
-  { name: "Blog", href: "/blog" as Route },
+const NAV: { name: string; href: string }[] = [
+  { name: "Home", href: "/" },
+  { name: "Rituals", href: "/rituals" },      // ensure this route exists
+  { name: "Start Here", href: "/start-here" },
+  { name: "Blog", href: "/blog" },
+  { name: "Get Updates", href: "/updates" },  // ← NEW
 ];
 
 export default function SiteHeader() {
