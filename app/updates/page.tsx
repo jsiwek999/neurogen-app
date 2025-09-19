@@ -1,9 +1,9 @@
 // app/updates/page.tsx
-export const dynamic = 'force-dynamic'; // avoid prerendering so query params are respected
+export const dynamic = 'force-dynamic'; // or: export const revalidate = 0
 
 import Link from 'next/link';
 
-type UpdatesPageProps = {
+type Props = {
   searchParams?: {
     confirmed?: string;
     subscribed?: string;
@@ -11,7 +11,7 @@ type UpdatesPageProps = {
   };
 };
 
-export default function UpdatesPage({ searchParams }: UpdatesPageProps) {
+export default function UpdatesPage({ searchParams }: Props) {
   const confirmed  = searchParams?.confirmed === '1';
   const subscribed = searchParams?.subscribed === '1';
   const error      = searchParams?.error;
