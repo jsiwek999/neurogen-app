@@ -1,5 +1,6 @@
 // app/updates/page.tsx
 'use client';
+export const dynamic = 'force-dynamic'; // or: export const revalidate = 0
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
