@@ -1,63 +1,55 @@
 // app/api/subscribe/route.ts
-import { NextResponse } from "next/server";
-import { Resend } from "resend";
+export const runtime = 'nodejs';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { Resend } from 'resend';
 
-// Verified sender in Resend (e.g., "EMX <notifications@emxprotocol.com>")
-const FROM = process.env.RESEND_FROM_EMAIL || "EMX <notifications@emxprotocol.com>";
-
-// Public site URL for links (e.g., https://emxprotocol.com)
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://emxprotocol.com";
-
-const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+const EmailSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
 
 export async function POST(req: Request) {
+  // 1) Parse body (form OR json)
+  const ct = req.headers.get('content-type') || '';
+  let raw: any = {};
   try {
-    const { email } = await req.json().catch(() => ({}));
-    if (!email || !isEmail(email)) {
-      return NextResponse.json({ ok: false, error: "Invalid email." }, { status: 400 });
+    if (ct.includes('application/json')) {
+      raw = await req.json();
+    } else {
+      const fd = await req.formData(); // handles x-www-form-urlencoded & multipart
+      raw.email = (fd.get('email') ?? '') as string;
     }
-
-    // If you later add tokens, build them here; for now we just mark confirmed=1
-    const confirmUrl = new URL("/updates", BASE_URL);
-    confirmUrl.searchParams.set("confirmed", "1");
-
-    const subject = "Confirm your EMX updates";
-    const html = `
-      <div style="font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.6">
-        <h2>You're almost in ✅</h2>
-        <p>Tap confirm to start getting EMX updates.</p>
-        <p>
-          <a href="${confirmUrl.toString()}"
-             style="display:inline-block;padding:10px 16px;border-radius:10px;background:#111827;color:#fff;text-decoration:none">
-            Confirm subscription
-          </a>
-        </p>
-        <p style="color:#6b7280;font-size:12px">If you didn't request this, ignore this email.</p>
-      </div>
-    `;
-    const text = `You're almost in. Confirm here: ${confirmUrl.toString()}`;
-
-    const sendResult = await resend.emails.send({
-      from: FROM,
-      to: [email],
-      subject,
-      html,
-      text,
-    });
-
-    console.log("[subscribe] sendResult id:", (sendResult as any)?.data?.id || (sendResult as any)?.id);
-
-    if ((sendResult as any).error) {
-      const err = (sendResult as any).error;
-      console.error("[subscribe] Resend error", err);
-      return NextResponse.json({ ok: false, error: err.message || "Send failed" }, { status: 502 });
-    }
-
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    console.error("[subscribe] Handler error", e);
-    return NextResponse.json({ ok: false, error: e?.message || "Server error" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ ok: false, error: 'Invalid request.' }, { status: 400 });
   }
+
+  // 2) Validate email
+  const parsed = EmailSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: 'Invalid email.' }, { status: 400 });
+  }
+  const email = parsed.data.email;
+
+  // 3) Build confirm URL
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const confirmUrl = new URL('/updates', base);
+  confirmUrl.searchParams.set('confirmed', '1');
+
+  // 4) Send mail
+  const resend = new Resend(process.env.RESEND_API_KEY!);
+  const { error } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,              // e.g., "Julian <hello@emxprotocol.online>"
+    to: email,
+    subject: 'Confirm your subscription',
+    html: `<p>Click to confirm: <a href="${confirmUrl}">${confirmUrl}</a></p>`,
+  });
+  if (error) {
+    return NextResponse.json({ ok: false, error: 'Failed to send email.' }, { status: 500 });
+  }
+
+  // 5) Redirect the browser back to UI with status
+  // Use 303 so form POST doesn’t re-POST on refresh
+  const subscribedUrl = new URL('/updates?subscribed=1', base);
+  return NextResponse.redirect(subscribedUrl, { status: 303 });
 }
