@@ -3,18 +3,21 @@ export const dynamic = 'force-dynamic'; // or: export const revalidate = 0
 
 import Link from 'next/link';
 
-type Props = {
-  searchParams?: {
-    confirmed?: string;
-    subscribed?: string;
-    error?: string;
-  };
-};
+type SearchParams = Record<string, string | string[] | undefined>;
+type Props = { searchParams?: Promise<SearchParams> };
 
-export default function UpdatesPage({ searchParams }: Props) {
-  const confirmed  = searchParams?.confirmed === '1';
-  const subscribed = searchParams?.subscribed === '1';
-  const error      = searchParams?.error;
+export default async function UpdatesPage({ searchParams }: Props) {
+  const params = (await searchParams) ?? {};
+
+  // helper to normalize string | string[] | undefined -> string | undefined
+  const get = (k: string) => {
+    const v = params[k];
+    return Array.isArray(v) ? v[0] : v;
+  };
+
+  const confirmed  = get('confirmed') === '1';
+  const subscribed = get('subscribed') === '1';
+  const error      = get('error');
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10 text-white">
