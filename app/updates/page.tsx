@@ -4,12 +4,13 @@ export const dynamic = 'force-dynamic'; // or: export const revalidate = 0
 import Link from 'next/link';
 
 type SearchParams = Record<string, string | string[] | undefined>;
-type Props = { searchParams?: Promise<SearchParams> };
 
-export default async function UpdatesPage({ searchParams }: Props) {
+export default async function UpdatesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
   const params = (await searchParams) ?? {};
-
-  // helper to normalize string | string[] | undefined -> string | undefined
   const get = (k: string) => {
     const v = params[k];
     return Array.isArray(v) ? v[0] : v;
