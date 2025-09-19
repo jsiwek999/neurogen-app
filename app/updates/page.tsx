@@ -1,15 +1,20 @@
 // app/updates/page.tsx
-'use client';
-export const dynamic = 'force-dynamic'; // or: export const revalidate = 0
+export const dynamic = 'force-dynamic'; // avoid prerendering so query params are respected
 
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
-export default function UpdatesPage() {
-  const params = useSearchParams();
-  const confirmed  = params.get('confirmed') === '1';
-  const subscribed = params.get('subscribed') === '1';
-  const error      = params.get('error') ?? '';
+type UpdatesPageProps = {
+  searchParams?: {
+    confirmed?: string;
+    subscribed?: string;
+    error?: string;
+  };
+};
+
+export default function UpdatesPage({ searchParams }: UpdatesPageProps) {
+  const confirmed  = searchParams?.confirmed === '1';
+  const subscribed = searchParams?.subscribed === '1';
+  const error      = searchParams?.error;
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10 text-white">
