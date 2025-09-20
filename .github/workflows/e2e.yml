@@ -1,21 +1,23 @@
-name: E2E
+name: e2e
 on:
-  workflow_dispatch:
-  push: { branches: [ main, master ] }
+  pull_request:
+  push:
+    branches: [main]
 jobs:
-  e2e:
+  test:
     runs-on: ubuntu-latest
-    env:
-      BASE_URL: https://emxprotocol.com
-      OPTIN_PATH: /start-here
-      THANKS_PATH: /thanks
-      SUCCESS_TEXT: Check your email
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile=false
-      - run: pnpm exec playwright install --with-deps
-      - run: pnpm exec playwright test
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: corepack enable
+      - run: corepack prepare pnpm@10.15.1 --activate
+      - run: pnpm install
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run e2e against prod
+        env:
+          BASE_URL: https://emxprotocol.com
+        run: pnpm playwright test
