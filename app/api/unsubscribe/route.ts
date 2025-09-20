@@ -1,4 +1,4 @@
-// app/api/subscribe/confirm/route.ts
+// app/api/unsubscribe/route.ts
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
@@ -16,17 +16,17 @@ export async function GET(req: Request) {
     const secret = process.env.SUBSCRIBE_TOKEN_SECRET;
     if (!secret) throw new Error('missing secret');
     const key = new TextEncoder().encode(secret);
-    const { payload } = await jwtVerify(token, key); // throws if invalid/expired
+    const { payload } = await jwtVerify(token, key);
     const email = String(payload.email || '');
     if (!email) throw new Error('no email');
 
     await supabaseService
       .from('newsletter_subscribers')
-      .update({ confirmed_at: new Date().toISOString() })
+      .update({ unsubscribed_at: new Date().toISOString() })
       .eq('email', email);
 
-    return NextResponse.redirect(absolute(req, '/updates?confirmed=1'), { status: 303 });
+    return NextResponse.redirect(absolute(req, '/updates?unsubscribed=1'), { status: 303 });
   } catch {
-    return NextResponse.redirect(absolute(req, '/updates?error=Invalid%20or%20expired%20link'), { status: 303 });
+    return NextResponse.redirect(absolute(req, '/updates?error=Invalid%20link'), { status: 303 });
   }
 }

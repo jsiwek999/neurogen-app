@@ -24,3 +24,6 @@ coverage/
 # local scratch
 /prisma.old/
 
+
+# Editor backups
+*.bak
