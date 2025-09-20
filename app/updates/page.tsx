@@ -52,13 +52,15 @@ export default async function UpdatesPage({
       <form className="space-y-4" action="/api/subscribe" method="post">
         <label className="block text-sm text-white/80">
           Email address
-          <input
-            className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-white/20"
-            type="email"
-            name="email"
-            placeholder="you@example.com"
-            required
-          />
+{/* Honeypot anti-bot field */}
+<input
+  type="text"
+  name="website"
+  tabIndex={-1}
+  autoComplete="off"
+  className="hidden"
+/>
+
         </label>
         <button
           className="rounded-xl border border-white/15 px-4 py-2 text-white hover:bg-white/10"
@@ -66,7 +68,8 @@ export default async function UpdatesPage({
         >
           Subscribe
         </button>
-      </form>
+        <input type="text" name="website" tabIndex="-1" autoComplete="off" className="hidden" />
+</form>
 
       <p className="mt-4 text-sm text-white/60">
         We’ll never share your email. Unsubscribe anytime.{' '}
