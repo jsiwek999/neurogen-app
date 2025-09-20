@@ -4,8 +4,6 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); // no apiVersion -> avoid TS literal churn
-
 function getBaseFromReq(req: Request) {
   const { origin } = new URL(req.url);
   return (
@@ -27,10 +25,18 @@ async function readBody(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await readBody(req);
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      return NextResponse.json(
+        { error: 'Server not configured: STRIPE_SECRET_KEY is missing.' },
+        { status: 500 }
+      );
+    }
+    // Lazy init to avoid build-time crash
+    const stripe = new Stripe(key);
 
-    // Expect the Stripe customer id from the client or your server logic
-    // If you already compute it (e.g., via Supabase), keep that code and just keep the base/return_url from below.
+    const body = await readBody(req);
+    // You might compute this from your auth/session; this is a generic version:
     const customer =
       (body.customer as string) || (body.customerId as string) || '';
 
@@ -49,8 +55,11 @@ export async function POST(req: Request) {
       return_url,
     });
 
-    // Return JSON so client can redirect: window.location = url
+    // Return JSON so client can redirect
     return NextResponse.json({ url: session.url }, { status: 200 });
+
+    // Or server-side redirect:
+    // return NextResponse.redirect(session.url!, { status: 303 });
   } catch (err: any) {
     return NextResponse.json(
       { error: err?.message ?? 'Failed to create billing portal session.' },

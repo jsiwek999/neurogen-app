@@ -4,8 +4,6 @@ export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!); // no apiVersion -> avoids TS literal mismatch
-
 function getBaseFromReq(req: Request) {
   const { origin } = new URL(req.url);
   return (
@@ -27,15 +25,22 @@ async function readBody(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await readBody(req);
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      return NextResponse.json(
+        { error: 'Server not configured: STRIPE_SECRET_KEY is missing.' },
+        { status: 500 }
+      );
+    }
+    // Lazy init inside the handler so build/import doesn’t explode
+    const stripe = new Stripe(key); // no apiVersion -> use account default
 
-    // Expecting a Stripe Price ID (e.g. "price_123")
+    const body = await readBody(req);
     const priceId =
       (body.priceId as string) || process.env.STRIPE_DEFAULT_PRICE_ID || '';
     const quantity = Number(body.quantity ?? 1) || 1;
-
-    // Default to subscriptions; allow override to "payment"
-    const mode = (body.mode as 'payment' | 'subscription' | undefined) ?? 'subscription';
+    const mode: 'payment' | 'subscription' =
+      (body.mode as any) === 'payment' ? 'payment' : 'subscription';
 
     if (!priceId.startsWith('price_')) {
       return NextResponse.json(
@@ -46,7 +51,7 @@ export async function POST(req: Request) {
 
     const base = getBaseFromReq(req);
     const success_url = new URL('/pricing?status=success', base).toString();
-    const cancel_url  = new URL('/pricing?status=cancel',  base).toString();
+    const cancel_url = new URL('/pricing?status=cancel', base).toString();
 
     const session = await stripe.checkout.sessions.create({
       mode,
@@ -56,10 +61,10 @@ export async function POST(req: Request) {
       allow_promotion_codes: true,
     });
 
-    // Return JSON (client should redirect to session.url)
+    // Return JSON so client can redirect to session.url
     return NextResponse.json({ id: session.id, url: session.url }, { status: 200 });
 
-    // If your client expects the API to do the redirect instead, use this:
+    // If you prefer server-side redirect:
     // return NextResponse.redirect(session.url!, { status: 303 });
   } catch (err: any) {
     return NextResponse.json(
