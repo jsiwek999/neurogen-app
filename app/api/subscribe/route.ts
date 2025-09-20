@@ -30,30 +30,44 @@ function canonicalBase(req: Request) {
   return new URL(req.url).origin; // dev fallback
 }
 
+/** Build an ABSOLUTE, same-origin URL for redirects. */
+function sameOrigin(req: Request, pathAndQuery: string) {
+  return new URL(pathAndQuery, req.url);
+}
+
 export async function POST(req: Request) {
   const email = await getEmailFromRequest(req);
 
   if (!isValidEmail(email)) {
-    // RELATIVE redirect = always same-origin
-    return NextResponse.redirect('/updates?error=Invalid%20email.', { status: 303 });
+    return NextResponse.redirect(sameOrigin(req, '/updates?error=Invalid%20email.'), {
+      status: 303,
+    });
   }
 
   // Build absolute confirmation link for the EMAIL content
   const confirmUrl = new URL('/updates?confirmed=1', canonicalBase(req)).toString();
 
   try {
-    const resend = new Resend(process.env.RESEND_API_KEY!);
+    const key = process.env.RESEND_API_KEY;
+    if (!key || !process.env.RESEND_FROM_EMAIL) {
+      return NextResponse.redirect(sameOrigin(req, '/updates?error=Email%20send%20failed.'), {
+        status: 303,
+      });
+    }
+
+    const resend = new Resend(key);
     const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL!, // e.g., "Julian <hello@emxprotocol.online>"
+      from: process.env.RESEND_FROM_EMAIL!,
       to: email,
       subject: 'Confirm your subscription',
       html: `<p>Click to confirm: <a href="${confirmUrl}">${confirmUrl}</a></p>`,
     });
     if (error) throw error;
   } catch {
-    return NextResponse.redirect('/updates?error=Email%20send%20failed.', { status: 303 });
+    return NextResponse.redirect(sameOrigin(req, '/updates?error=Email%20send%20failed.'), {
+      status: 303,
+    });
   }
 
-  // SUCCESS: relative redirect (same-origin)
-  return NextResponse.redirect('/updates?subscribed=1', { status: 303 });
+  return NextResponse.redirect(sameOrigin(req, '/updates?subscribed=1'), { status: 303 });
 }
