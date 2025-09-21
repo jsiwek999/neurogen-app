@@ -24,3 +24,9 @@ coverage/
 # local scratch
 /prisma.old/
 
+
+# Editor backups
+*.bak
+
+# Sentry Config File
+.env.sentry-build-plugin

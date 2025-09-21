@@ -1,52 +1,69 @@
 ﻿// app/api/portal/route.ts
-import Stripe from "stripe";
-export const runtime = "nodejs";
+export const runtime = 'nodejs';
 
-const inProd = process.env.VERCEL_ENV === "production";
-const choose = <T,>(test?: T, live?: T) => (inProd ? (live ?? test) : (test ?? live));
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+function getBaseFromReq(req: Request) {
+  const { origin } = new URL(req.url);
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : origin)
+  );
+}
+
+async function readBody(req: Request) {
+  const ct = (req.headers.get('content-type') || '').toLowerCase();
+  if (ct.includes('application/json')) {
+    return (await req.json().catch(() => ({}))) as Record<string, any>;
+  }
+  const fd = await req.formData();
+  const obj: Record<string, any> = {};
+  fd.forEach((v, k) => (obj[k] = v));
+  return obj;
+}
 
 export async function POST(req: Request) {
   try {
-    const { session_id } = await req.json().catch(() => ({} as any));
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      return NextResponse.json(
+        { error: 'Server not configured: STRIPE_SECRET_KEY is missing.' },
+        { status: 500 }
+      );
+    }
+    // Lazy init to avoid build-time crash
+    const stripe = new Stripe(key);
 
-    // Pick LIVE in production, TEST elsewhere (falls back if only one is set)
-    const secret = choose(process.env.STRIPE_SECRET_KEY_TEST, process.env.STRIPE_SECRET_KEY_LIVE);
-    if (!secret) return Response.json({ error: "Missing STRIPE secret (TEST/LIVE)" }, { status: 500 });
+    const body = await readBody(req);
+    // You might compute this from your auth/session; this is a generic version:
+    const customer =
+      (body.customer as string) || (body.customerId as string) || '';
 
-    const stripe = new Stripe(secret);
-
-    // We need a Stripe customer id. Easiest path today:
-    // If you pass a Checkout session_id, we can retrieve its customer.
-    let customerId: string | null = null;
-
-    if (session_id) {
-      const cs = await stripe.checkout.sessions.retrieve(session_id);
-      // customer can be string or object; normalize
-      customerId = (typeof cs.customer === "string" ? cs.customer : cs.customer?.id) || null;
+    if (!customer.startsWith('cus_')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid Stripe customer id.' },
+        { status: 400 }
+      );
     }
 
-    if (!customerId) {
-      // If you later have real auth + DB, look up customerId for the logged-in user here.
-      return Response.json({ error: "No Stripe customer found. Provide session_id in POST body." }, { status: 400 });
-    }
+    const base = getBaseFromReq(req);
+    const return_url = new URL('/pricing?status=portal', base).toString();
 
-    const returnUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      (inProd && process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
-    const portal = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: `${returnUrl}/pricing`,
+    const session = await stripe.billingPortal.sessions.create({
+      customer,
+      return_url,
     });
 
-    return Response.json({ url: portal.url }, { status: 200 });
-  } catch (err: any) {
-    const msg = err?.raw?.message || err?.message || "Stripe portal error";
-    console.error("portal error:", msg);
-    return Response.json({ error: msg }, { status: 400 });
-  }
-}
+    // Return JSON so client can redirect
+    return NextResponse.json({ url: session.url }, { status: 200 });
 
-export function GET() {
-  return new Response("Use POST", { status: 405, headers: { Allow: "POST" } });
+    // Or server-side redirect:
+    // return NextResponse.redirect(session.url!, { status: 303 });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err?.message ?? 'Failed to create billing portal session.' },
+      { status: 500 }
+    );
+  }
 }
