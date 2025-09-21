@@ -1,149 +1,82 @@
-// app/api/subscribe/route.ts
-export const runtime = 'nodejs';
+import { NextRequest, NextResponse } from 'next/server';
 
-import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import { SignJWT } from 'jose';
-import { supabaseService } from '@/lib/supabase/service';
+type Payload = { email?: string };
 
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-function canonicalBase(req: Request) {
-  const env = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '');
-  if (env) return env;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return new URL(req.url).origin;
-}
-function absolute(req: Request, pathAndQuery: string) {
-  return new URL(pathAndQuery, req.url);
+function isEmail(s: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
 
-// tiny burst limiter
-const buckets = new Map<string, { c: number; exp: number }>();
-function allow(ip: string, limit = 5) {
-  const now = Date.now(), win = 60_000, slot = Math.floor(now / win);
-  const key = `${ip}:${slot}`;
-  let b = buckets.get(key);
-  if (!b || b.exp <= now) b = { c: 0, exp: (slot + 1) * win }, buckets.set(key, b);
-  if (b.c >= limit) return false;
-  b.c++;
-  if (buckets.size > 1000) for (const [k, v] of buckets) if (v.exp <= now) buckets.delete(k);
-  return true;
-}
-
-export async function POST(req: Request) {
-  const ct = (req.headers.get('content-type') || '').toLowerCase();
-
-  let email = '';
-  let honeypot = '';
-  let utm: Record<string,string> = {};
+export async function POST(req: NextRequest) {
   try {
-    if (ct.includes('application/json')) {
-      const body = await req.json().catch(() => ({} as any));
-      email = String(body?.email || '').trim().toLowerCase();
-      honeypot = String(body?.website || '').trim();
-      utm = {
-        utm_source: body?.utm_source || '',
-        utm_medium: body?.utm_medium || '',
-        utm_campaign: body?.utm_campaign || '',
-        utm_term: body?.utm_term || '',
-        utm_content: body?.utm_content || '',
-        referer_url: body?.referer_url || '',
-      };
-    } else {
-      const fd = await req.formData();
-      email = String(fd.get('email') || '').trim().toLowerCase();
-      honeypot = String(fd.get('website') || '').trim();
-      utm = {
-        utm_source: String(fd.get('utm_source') || ''),
-        utm_medium: String(fd.get('utm_medium') || ''),
-        utm_campaign: String(fd.get('utm_campaign') || ''),
-        utm_term: String(fd.get('utm_term') || ''),
-        utm_content: String(fd.get('utm_content') || ''),
-        referer_url: String(fd.get('referer_url') || ''),
-      };
+    const { email } = (await req.json().catch(() => ({}))) as Payload;
+
+    if (!email || !isEmail(email)) {
+      return NextResponse.json({ error: 'Invalid email.' }, { status: 400 });
     }
-  } catch {}
 
-  // honeypot: pretend success
-  if (honeypot.length > 0) {
-    return NextResponse.redirect(absolute(req, '/updates?subscribed=1'), { status: 303 });
-  }
+    // --- Optional DB write (recommended, non-fatal if it fails) ---
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        process.env.SUPABASE_URL as string,
+        process.env.SUPABASE_ANON_KEY as string
+      );
 
-  const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0]?.trim() || '0.0.0.0';
-  if (!allow(ip)) {
-    return NextResponse.redirect(absolute(req, '/updates?error=Too%20many%20requests'), { status: 303 });
-  }
+      // Upsert to avoid duplicates; adjust table/columns if yours differ
+      const { error: dbErr } = await supabase
+        .from('subscribers')
+        .upsert({ email, confirmed: false }, { onConflict: 'email' });
 
-  if (!isValidEmail(email)) {
-    return NextResponse.redirect(absolute(req, '/updates?error=Invalid%20email.'), { status: 303 });
-  }
-
-  // fetch existing to avoid overwriting first-touch attribution
-  let existing: any = null;
-  try {
-    const { data } = await supabaseService
-      .from('newsletter_subscribers')
-      .select('utm_source,utm_medium,utm_campaign,utm_term,utm_content,referer_url')
-      .eq('email', email)
-      .maybeSingle();
-    existing = data;
-  } catch {}
-
-  const toUpsert: any = {
-    email,
-    source: '/updates',
-    last_ip: ip,
-  };
-
-  // only set UTM/ref if missing on existing
-  const keys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','referer_url'] as const;
-  for (const k of keys) {
-    const incoming = (utm[k] || '').slice(0, 512);
-    if (!existing || !existing[k as keyof typeof existing]) {
-      if (incoming) toUpsert[k] = incoming;
+      if (dbErr) console.error('Supabase upsert error:', dbErr);
+    } catch (e) {
+      // Don’t block email send if Supabase isn’t ready
+      console.error('Supabase block skipped/failed:', e);
     }
-  }
 
-  try {
-    await supabaseService
-      .from('newsletter_subscribers')
-      .upsert(toUpsert, { onConflict: 'email' });
-  } catch {
-    // non-fatal
-  }
+    // --- Send confirmation email via Resend ---
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    const FROM = process.env.RESEND_FROM_EMAIL || 'notifications@emxprotocol.com';
+    const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://emxprotocol.com';
 
-  const secret = process.env.SUBSCRIBE_TOKEN_SECRET;
-  if (!secret) {
-    return NextResponse.redirect(absolute(req, '/updates?error=Server%20config%20missing'), { status: 303 });
-  }
-  const key = new TextEncoder().encode(secret);
-  const token = await new SignJWT({ email })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('30m')
-    .sign(key);
+    if (!RESEND_API_KEY) {
+      return NextResponse.json({ error: 'Missing RESEND_API_KEY' }, { status: 500 });
+    }
 
-  const confirmUrl = new URL(`/api/subscribe/confirm?token=${encodeURIComponent(token)}`, canonicalBase(req)).toString();
+    // Confirmation URL shown to user + optional email echo for DB confirm
+    const confirmUrl = `${SITE}/updates?confirmed=1&email=${encodeURIComponent(email)}`;
 
-  try {
-    const apiKey = process.env.RESEND_API_KEY;
-    const from = process.env.RESEND_FROM_EMAIL;
-    if (!apiKey || !from) throw new Error('email not configured');
+    const html = `
+      <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;">
+        <h2>Confirm your subscription</h2>
+        <p>Tap the link below to confirm and start getting updates from EMX Protocol.</p>
+        <p><a href="${confirmUrl}">Confirm my email</a></p>
+        <p style="color:#666;font-size:12px;">If you didn’t request this, you can ignore it.</p>
+      </div>
+    `;
 
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from,
-      to: email,
-      subject: 'Confirm your subscription',
-      html: `<p>Click to confirm your subscription:</p><p><a href="${confirmUrl}">${confirmUrl}</a></p><p>If you didn't request this, you can ignore it.</p>`,
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `EMX Protocol <${FROM}>`,
+        to: [email],
+        subject: 'Confirm your subscription',
+        html,
+      }),
     });
-    if (error) throw error;
-  } catch {
-    // still show success
-    return NextResponse.redirect(absolute(req, '/updates?subscribed=1'), { status: 303 });
-  }
 
-  return NextResponse.redirect(absolute(req, '/updates?subscribed=1'), { status: 303 });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      console.error('Resend error:', err);
+      return NextResponse.json({ error: 'Email send failed.' }, { status: 502 });
+    }
+
+    return NextResponse.json({ status: 'ok' }, { status: 200 });
+  } catch (e) {
+    console.error('Subscribe handler error:', e);
+    return NextResponse.json({ error: 'Unexpected error.' }, { status: 500 });
+  }
 }
