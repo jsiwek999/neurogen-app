@@ -1,4 +1,6 @@
 // app/updates/page.tsx
+import UTMFields from "@/components/UTMFields";
+
 export const dynamic = 'force-dynamic'; // or: export const revalidate = 0
 
 import Link from 'next/link';
@@ -60,6 +62,8 @@ export default async function UpdatesPage({
   autoComplete="off"
   className="hidden"
 />
+
+  <UTMFields />
 
         </label>
         <button

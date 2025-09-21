@@ -27,3 +27,6 @@ coverage/
 
 # Editor backups
 *.bak
+
+# Sentry Config File
+.env.sentry-build-plugin
