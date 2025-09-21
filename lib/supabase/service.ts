@@ -27,7 +27,6 @@ function getClient(): SupabaseClient {
 // Export a proxy so existing call sites can do: supabaseService.from('table')...
 export const supabaseService = new Proxy({} as SupabaseClient, {
   get(_t, prop) {
-    // @ts-expect-error dynamic forwarding
     return getClient()[prop as keyof SupabaseClient];
   },
 });
