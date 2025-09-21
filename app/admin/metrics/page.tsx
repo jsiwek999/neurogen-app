@@ -42,11 +42,14 @@ export default async function Page({ searchParams }: Props) {
     count((q) => q.gte('confirmed_at', iso7d).not('confirmed_at', 'is', null)),
   ]);
 
-  const { data: rows = [] } = await supabaseService
+  // --- FIX: guard against null data
+  const { data } = await supabaseService
     .from('newsletter_subscribers')
     .select('utm_source')
     .order('created_at', { ascending: false })
     .limit(1000);
+
+  const rows = (data ?? []) as { utm_source: string | null }[];
 
   const bySource = new Map<string, number>();
   for (const r of rows) {
