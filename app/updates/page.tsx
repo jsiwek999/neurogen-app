@@ -1,33 +1,32 @@
 // app/updates/page.tsx
 
-type SP = URLSearchParams;
+// Treat resolved searchParams as a record (object)
+type SP = Record<string, string | string[] | undefined>;
 
 export default async function UpdatesPage({
   searchParams,
 }: {
-  // Next 15 passes a Promise of URLSearchParams-ish
   searchParams: Promise<SP>;
 }) {
-  const params = await searchParams;
+  const sp = await searchParams;
 
-  // Read params via .get(), not object destructuring
-  const confirmed = params.get('confirmed'); // "1", "true", "yes", or null
-  const email = params.get('email') ?? '';
+  // helper to safely read single values
+  const pick = (k: string) => {
+    const v = sp[k];
+    return Array.isArray(v) ? v[0] : v ?? '';
+  };
 
-  // Normalize confirm truthiness
-  const isConfirmed =
-    confirmed === '1' || confirmed === 'true' || confirmed === 'yes';
+  const confirmed = pick('confirmed');
+  const email = pick('email');
+
+  const isConfirmed = ['1', 'true', 'yes'].includes(confirmed.toLowerCase?.() ?? '');
 
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold">Updates</h1>
 
       {!isConfirmed && (
-        <form
-          className="mt-4 flex gap-2"
-          action="/api/subscribe"
-          method="POST"
-        >
+        <form className="mt-4 flex gap-2" action="/api/subscribe" method="POST">
           <input
             type="email"
             name="email"
@@ -36,18 +35,13 @@ export default async function UpdatesPage({
             placeholder="you@example.com"
             className="border rounded px-3 py-2 w-full max-w-sm"
           />
-          <button
-            type="submit"
-            className="rounded px-4 py-2 border"
-          >
+          <button type="submit" className="rounded px-4 py-2 border">
             Subscribe
           </button>
         </form>
       )}
 
-      {isConfirmed && (
-        <p className="mt-4">Thanks! Check your email to confirm.</p>
-      )}
+      {isConfirmed && <p className="mt-4">Thanks! Check your email to confirm.</p>}
     </div>
   );
 }

@@ -1,13 +1,19 @@
+// app/subscribe/page.tsx
 import SubscribeForm from '@/components/SubscribeForm';
+
+type SP = Record<string, string | string[] | undefined>;
 
 export default async function SubscribePage({
   searchParams,
 }: {
-  // Next 15: searchParams is a Promise
-  searchParams: Promise<URLSearchParams>;
+  searchParams: Promise<SP>;
 }) {
-  const params = await searchParams;
-  const email = params.get('email') ?? '';
+  const sp = await searchParams;
+  const pick = (k: string) => {
+    const v = sp[k];
+    return Array.isArray(v) ? v[0] : v ?? '';
+  };
+  const email = pick('email');
 
   return (
     <div className="p-6">
