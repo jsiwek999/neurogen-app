@@ -1,10 +1,21 @@
+// app/subscribe/page.tsx
 import SubscribeForm from '@/components/SubscribeForm';
 
-export default function SubscribePage() {
+type SP = URLSearchParams | ReadonlyURLSearchParams;
+
+export default async function SubscribePage({
+  searchParams,
+}: {
+  searchParams: Promise<SP>;
+}) {
+  const params = await searchParams;
+  const email = params.get('email') ?? '';
+
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="text-2xl font-bold mb-4">Subscribe</h1>
-      <SubscribeForm />
-    </main>
+    <div className="p-6">
+      <h1 className="text-xl font-semibold">Subscribe</h1>
+      <p className="text-sm opacity-80">Get updates in your inbox.</p>
+      <SubscribeForm defaultEmail={email} />
+    </div>
   );
 }
