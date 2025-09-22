@@ -42,17 +42,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing RESEND_API_KEY' }, { status: 500 });
     }
 
-    // Confirmation URL shown to user + optional email echo for DB confirm
-    const confirmUrl = `${SITE}/updates?confirmed=1&email=${encodeURIComponent(email)}`;
+const confirmUrl = `${SITE}/updates?confirmed=1&email=${encodeURIComponent(email)}`;
 
-    const html = `
-      <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;">
-        <h2>Confirm your subscription</h2>
-        <p>Tap the link below to confirm and start getting updates from EMX Protocol.</p>
-        <p><a href="${confirmUrl}">Confirm my email</a></p>
-        <p style="color:#666;font-size:12px;">If you didn’t request this, you can ignore it.</p>
-      </div>
-    `;
+const html = `
+  <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;">
+    <h2>Confirm your subscription</h2>
+    <p>Tap the link below to confirm and start getting updates from EMX Protocol.</p>
+    <p><a href="${confirmUrl}">Confirm my email</a></p>
+    <p>Or open Updates: <a href="${SITE}/updates?email=${encodeURIComponent(email)}">Updates</a></p>
+  </div>`;
+
 
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
