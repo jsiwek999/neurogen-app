@@ -1,32 +1,49 @@
 // app/api/unsubscribe/route.ts
-export const runtime = 'nodejs';
+import { NextRequest, NextResponse } from 'next/server';
 
-import { NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
-import { supabaseService } from '@/lib/supabase/service';
-
-function absolute(req: Request, pathAndQuery: string) {
-  return new URL(pathAndQuery, req.url);
+function redirectToSubscribe(origin: string, email: string) {
+  const url = new URL('/subscribe', origin);
+  url.searchParams.set('unsub', '1');
+  if (email) url.searchParams.set('email', email);
+  return NextResponse.redirect(url, { status: 302 });
 }
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const token = url.searchParams.get('token') || '';
+async function extractEmail(req: NextRequest) {
+  const u = new URL(req.url);
+  let email = u.searchParams.get('email') ?? '';
+
   try {
-    const secret = process.env.SUBSCRIBE_TOKEN_SECRET;
-    if (!secret) throw new Error('missing secret');
-    const key = new TextEncoder().encode(secret);
-    const { payload } = await jwtVerify(token, key);
-    const email = String(payload.email || '');
-    if (!email) throw new Error('no email');
-
-    await supabaseService
-      .from('newsletter_subscribers')
-      .update({ unsubscribed_at: new Date().toISOString() })
-      .eq('email', email);
-
-    return NextResponse.redirect(absolute(req, '/updates?unsubscribed=1'), { status: 303 });
+    const ct = req.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      const body = await req.json().catch(() => ({}));
+      email = String(body?.email ?? email ?? '').trim();
+    } else if (
+      ct.includes('application/x-www-form-urlencoded') ||
+      ct.includes('multipart/form-data')
+    ) {
+      const form = await req.formData().catch(() => null);
+      email = String(form?.get('email') ?? email ?? '').trim();
+    }
   } catch {
-    return NextResponse.redirect(absolute(req, '/updates?error=Invalid%20link'), { status: 303 });
+    // ignore
   }
+
+  return email;
 }
+
+export async function GET(req: NextRequest) {
+  const email = await extractEmail(req);
+  const origin = new URL(req.url).origin;
+  // TODO: persist suppression in your DB or ESP if desired
+  return redirectToSubscribe(origin, email);
+}
+
+export async function POST(req: NextRequest) {
+  const email = await extractEmail(req);
+  const origin = new URL(req.url).origin;
+  // TODO: persist suppression in your DB or ESP if desired
+  return redirectToSubscribe(origin, email);
+}
+
+// Ensure it runs dynamically on Vercel edge/node as needed
+export const dynamic = 'force-dynamic';

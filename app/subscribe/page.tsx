@@ -15,12 +15,18 @@ export default async function SubscribePage({
   const sp = await searchParams;
   const email = pick(sp, 'email');
   const error = pick(sp, 'error');
+  const unsub = pick(sp, 'unsub');
 
   return (
     <div className="p-6">
       <h1 className="text-xl font-semibold">Subscribe</h1>
       <p className="text-sm opacity-80">Get updates in your inbox.</p>
 
+      {unsub === '1' && (
+        <p className="mt-3 text-emerald-500">
+          You’ve been unsubscribed{email ? <> at <strong>{email}</strong></> : ''}.
+        </p>
+      )}
       {error === 'invalid-email' && (
         <p className="mt-3 text-red-500">Please enter a valid email address.</p>
       )}

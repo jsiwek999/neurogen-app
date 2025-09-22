@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     return bounce('server-misconfig', { hint: 'bad-from' });
   }
 
+  const unsubscribeUrl = `https://emxprotocol.online/api/unsubscribe?email=${encodeURIComponent(email)}`;
   const resend = new Resend(RESEND_KEY);
 
   try {
@@ -52,10 +53,11 @@ export async function POST(req: NextRequest) {
       text: `Thanks for subscribing. You’ll hear from us soon.`,
       html: `<p>Thanks for subscribing to EMX updates — you’ll hear from us soon.</p>
 <p style="margin-top:16px;font-size:12px;">Don’t want these?
-<a href="https://emxprotocol.online/api/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a></p>`,
+<a href="${unsubscribeUrl}">Unsubscribe</a></p>`,
       replyTo: 'support@emxprotocol.online',
       headers: {
-        'List-Unsubscribe': `<mailto:unsubscribe@emxprotocol.online>, <https://emxprotocol.online/api/unsubscribe?email=${encodeURIComponent(email)}>`,
+        'List-Unsubscribe': `<mailto:unsubscribe@emxprotocol.online>, <${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
       },
     });
 
