@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
   };
 
   if (!isValidEmail(email)) return bounce('invalid-email');
-
   if (!RESEND_KEY) {
     console.error('[subscribe] Missing RESEND_API_KEY (prod env?)');
     return bounce('server-misconfig', { hint: 'no-key' });
@@ -46,16 +45,24 @@ export async function POST(req: NextRequest) {
   const resend = new Resend(RESEND_KEY);
 
   try {
+    const preheader = 'You’re on the list. Here’s what to expect…';
+    const html = `
+      <span style="display:none;opacity:0;visibility:hidden;height:0;width:0;overflow:hidden;">${preheader}</span>
+      <p>Thanks for subscribing to EMX updates — you’ll hear from us soon.</p>
+      <p style="margin-top:16px;font-size:12px;color:#666;">
+        Don’t want these? <a href="${unsubscribeUrl}">Unsubscribe</a>
+      </p>
+    `;
+
     const { data, error } = await resend.emails.send({
       from: FROM,
       to: email,
       subject: 'You’re in — EMX Updates',
-      text: `Thanks for subscribing. You’ll hear from us soon.`,
-      html: `<p>Thanks for subscribing to EMX updates — you’ll hear from us soon.</p>
-<p style="margin-top:16px;font-size:12px;">Don’t want these?
-<a href="${unsubscribeUrl}">Unsubscribe</a></p>`,
+      text: `Thanks for subscribing. You’ll hear from us soon.\n\nUnsubscribe: ${unsubscribeUrl}`,
+      html,
       replyTo: 'support@emxprotocol.online',
       headers: {
+        // Mail client “one-click” support (RFC 8058)
         'List-Unsubscribe': `<mailto:unsubscribe@emxprotocol.online>, <${unsubscribeUrl}>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
       },
@@ -76,3 +83,5 @@ export async function POST(req: NextRequest) {
     return bounce('send-failed', { code: 'exception' });
   }
 }
+
+export const dynamic = 'force-dynamic';

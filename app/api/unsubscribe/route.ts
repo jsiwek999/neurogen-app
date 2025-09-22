@@ -9,9 +9,11 @@ function redirectToSubscribe(origin: string, email: string) {
 }
 
 async function extractEmail(req: NextRequest) {
+  // Start with query param
   const u = new URL(req.url);
   let email = u.searchParams.get('email') ?? '';
 
+  // Also accept POST bodies per RFC 8058 (providers send POSTs for one-click)
   try {
     const ct = req.headers.get('content-type') || '';
     if (ct.includes('application/json')) {
@@ -25,7 +27,7 @@ async function extractEmail(req: NextRequest) {
       email = String(form?.get('email') ?? email ?? '').trim();
     }
   } catch {
-    // ignore
+    // ignore; fall back to whatever we have
   }
 
   return email;
@@ -34,16 +36,21 @@ async function extractEmail(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const email = await extractEmail(req);
   const origin = new URL(req.url).origin;
-  // TODO: persist suppression in your DB or ESP if desired
+
+  // TODO: add your suppression persistence here (DB / ESP suppression list)
+  // e.g., await supabase.from('suppression').insert({ email, reason: 'manual' });
+
   return redirectToSubscribe(origin, email);
 }
 
 export async function POST(req: NextRequest) {
   const email = await extractEmail(req);
   const origin = new URL(req.url).origin;
-  // TODO: persist suppression in your DB or ESP if desired
+
+  // TODO: add your suppression persistence here
+
   return redirectToSubscribe(origin, email);
 }
 
-// Ensure it runs dynamically on Vercel edge/node as needed
+// Avoid caching; treat as dynamic
 export const dynamic = 'force-dynamic';
