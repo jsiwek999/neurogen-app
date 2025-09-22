@@ -21,7 +21,7 @@
       "unrs-resolver"
     ]
 },
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.15.1",
     "dependencies": {
         "@prisma/client": "^6.14.0",
         "@prisma/extension-accelerate": "^2.0.2",
