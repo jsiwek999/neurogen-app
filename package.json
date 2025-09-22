@@ -8,8 +8,20 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+            "postinstall": "prisma generate"
     },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "sharp",
+      "@sentry/cli",
+      "unrs-resolver"
+    ]
+},
+  "packageManager": "pnpm@10.17.0",
     "dependencies": {
         "@prisma/client": "^6.14.0",
         "@prisma/extension-accelerate": "^2.0.2",
