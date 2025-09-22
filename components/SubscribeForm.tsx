@@ -1,27 +1,25 @@
-// components/SubscribeForm.tsx
-// (No "use client" needed unless you add hooks)
-
 export default function SubscribeForm({ defaultEmail = '' }: { defaultEmail?: string }) {
   return (
-    <form
-      className="mt-4 flex gap-2 items-start"
-      action="/api/subscribe"
-      method="POST"
-    >
-      <input
-        type="email"
-        name="email"
-        defaultValue={defaultEmail}
-        required
-        placeholder="you@example.com"
-        className="border rounded px-3 py-2 w-full max-w-sm"
-      />
-      <button
-        type="submit"
-        className="rounded px-4 py-2 border"
+    <div className="mt-4 w-full flex justify-center">
+      <form
+        className="flex w-full max-w-md gap-2"
+        action="/api/subscribe"
+        method="POST"
+        // remove noValidate if you want browser tooltip validation
+        // noValidate
       >
-        Subscribe
-      </button>
-    </form>
+        <input
+          type="email"
+          name="email"
+          defaultValue={defaultEmail}
+          required
+          placeholder="your email@example.com"
+          className="flex-1 border rounded px-3 py-2"
+        />
+        <button type="submit" className="rounded px-4 py-2 border">
+          Subscribe
+        </button>
+      </form>
+    </div>
   );
 }
