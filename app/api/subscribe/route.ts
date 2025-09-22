@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       subject: 'You’re in — EMX Updates',
       text: `Thanks for subscribing. You’ll hear from us soon.`,
       html: `<p>Thanks for subscribing to EMX updates — you’ll hear from us soon.</p>`,
-      reply_to: 'support@emxprotocol.online', // optional but good
+      replyTo: 'support@emxprotocol.online', // optional but good
       headers: {
         'List-Unsubscribe': `<mailto:unsubscribe@emxprotocol.online>`,
       },
