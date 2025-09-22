@@ -1,12 +1,10 @@
-// app/subscribe/page.tsx
 import SubscribeForm from '@/components/SubscribeForm';
-
-type SP = URLSearchParams | ReadonlyURLSearchParams;
 
 export default async function SubscribePage({
   searchParams,
 }: {
-  searchParams: Promise<SP>;
+  // Next 15: searchParams is a Promise
+  searchParams: Promise<URLSearchParams>;
 }) {
   const params = await searchParams;
   const email = params.get('email') ?? '';
