@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
 const RESEND_KEY = process.env.RESEND_API_KEY || '';
-const FROM = process.env.RESEND_FROM_EMAIL || 'updates@emxprotocol.online'; // make sure this domain is VERIFIED in Resend
+const FROM = process.env.RESEND_FROM_EMAIL || 'updates@emxprotocol.online';
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
   const email = await readEmail(req);
   const origin = new URL(req.url);
 
-  // Surface errors in the UI via query params
   const bounce = (code: string, extras?: Record<string, string>) => {
     const url = new URL('/subscribe', origin);
     url.searchParams.set('error', code);
@@ -38,7 +37,6 @@ export async function POST(req: NextRequest) {
     console.error('[subscribe] Missing RESEND_API_KEY (prod env?)');
     return bounce('server-misconfig', { hint: 'no-key' });
   }
-
   if (!/@.+\./.test(FROM)) {
     console.error('[subscribe] Bad FROM address:', FROM);
     return bounce('server-misconfig', { hint: 'bad-from' });
@@ -48,14 +46,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM, // e.g., 'updates@emxprotocol.online' — must be on a verified domain
+      from: FROM,
       to: email,
       subject: 'You’re in — EMX Updates',
       text: `Thanks for subscribing. You’ll hear from us soon.`,
-      html: `<p>Thanks for subscribing to EMX updates — you’ll hear from us soon.</p>`,
-      replyTo: 'support@emxprotocol.online', // optional but good
+      html: `<p>Thanks for subscribing to EMX updates — you’ll hear from us soon.</p>
+<p style="margin-top:16px;font-size:12px;">Don’t want these?
+<a href="https://emxprotocol.online/api/unsubscribe?email=${encodeURIComponent(email)}">Unsubscribe</a></p>`,
+      replyTo: 'support@emxprotocol.online',
       headers: {
-        'List-Unsubscribe': `<mailto:unsubscribe@emxprotocol.online>`,
+        'List-Unsubscribe': `<mailto:unsubscribe@emxprotocol.online>, <https://emxprotocol.online/api/unsubscribe?email=${encodeURIComponent(email)}>`,
       },
     });
 
