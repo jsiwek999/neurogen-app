@@ -1,0 +1,38 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")  // pooled (runtime)
+  directUrl = env("DIRECT_URL")    // non-pooled (migrations)
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  incomplete
+  incomplete_expired
+  unpaid
+  canceled
+}
+
+model User {
+  id                   String              @id @default(cuid())
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  email                String?             @db.VarChar(320)
+  stripeCustomerId     String              @unique
+  stripeSubscriptionId String?
+  status               SubscriptionStatus  @default(trialing)
+
+  @@index([email])
+}
+
+model StripeEvent {
+  // Stripe event id (e.g., evt_...)
+  id        String   @id
+  createdAt DateTime @default(now())
+}
