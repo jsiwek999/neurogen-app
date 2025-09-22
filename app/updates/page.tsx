@@ -1,29 +1,16 @@
-import Banner from '@/components/Banner';
-import ConfirmEffect from '@/components/ConfirmEffect';
+// app/updates/page.tsx
 
-export default function UpdatesPage({
-  searchParams,
-}: {
-  searchParams: { confirmed?: string; email?: string };
-}) {
-  const isConfirmed = searchParams?.confirmed === '1';
-  const email = searchParams?.email;
+type SP = { confirmed?: string; email?: string };
+
+export default async function UpdatesPage({ searchParams }: PageProps) {
+  const { confirmed, email } = (await searchParams) as SP;
 
   return (
-    <main className="mx-auto max-w-3xl p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Updates</h1>
-
-      {isConfirmed && (
-        <Banner kind="success">
-          🎉 You’re confirmed! You’ll get updates from EMX Protocol. {email ? `(${email})` : ''}
-        </Banner>
-      )}
-
-      {isConfirmed && email ? <ConfirmEffect email={email} /> : null}
-
-      <section className="prose">
-        <p>Latest news, feature drops, and state-shifting tricks—right here.</p>
-      </section>
-    </main>
+    <div className="p-6">
+      <h1 className="text-xl font-semibold">Updates</h1>
+      {confirmed && <p>Confirmed: {confirmed}</p>}
+      {email && <p>Email: {email}</p>}
+    </div>
   );
 }
+
